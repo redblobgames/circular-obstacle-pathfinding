@@ -1,37 +1,57 @@
-## Welcome to GitHub Pages
+# Problem statement
 
-You can use the [editor on GitHub](https://github.com/redblobgames/circular-obstacle-pathfinding/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+Show the problem being solved with an interactive diagram
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Path
 
-### Markdown
+Show a path. It will be alternating "surfing" and "hugging" edges.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+# A\* Algorithm
 
-```markdown
-Syntax highlighted code block
+Review A\*, emphasizing that it works on graphs. We'll want to represent the surfing and hugging edges, as well as the nodes, in this graph. A\* is versatile and does not need to be modified for this problem (is this true?). 
 
-# Header 1
-## Header 2
-### Header 3
+# Graph
 
-- Bulleted
-- List
+Show the graph corresponding to the initial diagram, with surfing and hugging edges. Simplications: player is a point instead of a circle, and the obstacles don't intersect.
 
-1. Numbered
-2. List
+Every node is on a circle (or is the start/end point), and every edge is either a hugging edge between two points on the same circle, or a surfing edge between two points on different circles
 
-**Bold** and _Italic_ and `Code` text
+## Generating surfing edges
 
-[Link](url) and ![Image](src)
-```
+- Given two circles, generate the nodes and edges for the graph
+- bitangents, biarcs
+- pulley problem, belt problem
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+Diagram can detect overlap and say we'll handle these later
 
-### Jekyll Themes
+## Generating hugging edges
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/redblobgames/circular-obstacle-pathfinding/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+## Line of sight
 
-### Support or Contact
+Diagram with three circles shows that some of the surfing edges don't actually work because they're blocked. Implement line of sight here
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+# MVP Demo
+
+We have enough to run pathfinding
+
+# Enhancements
+
+## left/right direction
+
+Not sure how to explain this yet
+
+### delay edge generation
+
+In the pathfinding demo show which edges were even looked at. If these things are moving around, we can delay generating that graph by moving the edge generation to the neighbors() function
+
+## overlapping circles
+
+Show the bitangent diagram, but this time with circles overlapping, we need the belt problem but not the pulley problem
+
+## polygonal obstacles
+
+exercise for the reader
+
+## spatial index
+
+# Full demo
