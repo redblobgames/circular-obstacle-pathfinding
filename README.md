@@ -33,6 +33,10 @@ Every node is on a circle (or is the start/end point), and every edge is either 
 
 ## Generating surfing edges
 
+The surfing edges between a pair of circles are the line segments
+which just kiss the circles; these segments are known as bitangents,
+and in general, there are four of them for each pair of circles.
+
 - Given two circles, generate the nodes and edges for the graph
 - bitangents, biarcs
 - pulley problem, belt problem
