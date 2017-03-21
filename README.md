@@ -1,3 +1,16 @@
+<address>Mar 2017</address>
+
+<style>
+svg { pointer-events: none; }
+text { font-family: helvetica; font-size: 16px; text-anchor: middle; }
+line { fill: none; stroke: black; }
+.draggable { pointer-events: visible; pointer: move; }
+.dashed { stroke-dasharray: 4,3; }
+</style>
+
+
+
+
 # Problem statement
 
 Show the problem being solved with an interactive diagram
@@ -21,6 +34,31 @@ Every node is on a circle (or is the start/end point), and every edge is either 
 - Given two circles, generate the nodes and edges for the graph
 - bitangents, biarcs
 - pulley problem, belt problem
+
+<svg id="belt-problem" width="600" height="300">
+  <circle id="belt-circle-1" class="draggable" :cx="A.x" :cy="A.y" :r="A.r" fill="hsl(240,10%,90%)"/>
+  <circle id="belt-circle-2" class="draggable" :cx="B.x" :cy="B.y" :r="B.r" fill="hsl(240,10%,90%)"/>
+  <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" stroke-width="2"/>
+  <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" stroke-width="2"/>
+  <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y"/>
+  <belt-label :at="A" :opposite="B" label="A"/>
+  <belt-label :at="B" :opposite="A" label="B"/>
+  <template v-if="non_overlapping">
+    <line class="dashed" :x1="A.x" :y1="A.y" :x2="C.x" :y2="C.y"/>
+    <line class="dashed" :x1="A.x" :y1="A.y" :x2="D.x" :y2="D.y"/>
+    <line class="dashed" :x1="B.x" :y1="B.y" :x2="E.x" :y2="E.y"/>
+    <line class="dashed" :x1="B.x" :y1="B.y" :x2="F.x" :y2="F.y"/>
+    <line :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" stroke-width="2" style="stroke:hsl(240,50%,50%)"/>
+    <line :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" stroke-width="2" style="stroke:hsl(240,50%,50%)"/>
+    <belt-label :at="C" :opposite="A" label="C"/>
+    <belt-label :at="D" :opposite="A" label="D"/>
+    <belt-label :at="E" :opposite="B" label="E"/>
+    <belt-label :at="F" :opposite="B" label="F"/>
+  </template>
+  <template v-else>
+    <text x="300" y="15">Overlapping circles have no bitangents</text>
+  </template>
+</svg>
 
 Diagram can detect overlap and say we'll handle these later
 
@@ -55,3 +93,18 @@ exercise for the reader
 ## spatial index
 
 # Full demo
+
+
+
+
+# References
+
+- Belt problem
+- Pulley problem
+
+
+<script src="https://unpkg.com/vue"></script>
+<script src="draggable.js"></script>
+<script src="belt-problem.js"></script>
+
+<!-- hhmts start -->Last modified: 20 Mar 2017<!-- hhmts end -->
