@@ -1,7 +1,5 @@
-<!doctype HTML>
 <meta charset="utf-8" />
 
-<body>
 <address>Mar 2017</address>
 
 <style>
@@ -160,5 +158,3 @@ exercise for the reader
 <script src="belt-problem.js"></script>
 
 <!-- hhmts start -->Last modified: 20 Mar 2017<!-- hhmts end -->
-
-</body>
