@@ -15,11 +15,42 @@ line { fill: none; stroke: black; }
 
 # Problem statement
 
-Show the problem being solved with an interactive diagram
+The A* pathfinding algorithm is a powerful method for quickly
+generating optimal paths. Typically, it is demonstrated navigating
+grid-based maps such as this one, avoiding obstacles to reach its
+goal.
+
+[Diagram here]
+
+But A* isn't just a grid algorithm! It can work on any graph, not just
+a 2D grid. We can use A* to find a path for this round object through
+this world of round obstacles.
+
+[Diagram here]
+
+How does the same algorithm solve both problems?
 
 ## Path
 
-Show a path. It will be alternating "surfing" and "hugging" edges.
+When navigating a round object through a world of round obstacles, we
+can make a few observations that will simplify the problem. First, we
+can make things easier by noticing that moving a circle of radius R
+through a forest of round obstacles is identical to moving a point
+through that same forest with one change: each obstacle has its radius
+increased by R. This is an extremely simple application of _Minkowski
+addition_, and it's so effective for this case that from now on we'll
+consider finding paths for moving points. We'll ignore the radius of
+the moving object.
+
+Another observation to make about the problem is that the paths
+consist of two types of sections: line segments and circular arcs. The
+endpoints of the line segments can be the starting point or the ending
+point, but they can also be points on the circular obstacles which are
+tangent to the line segments. The circular arcs are paths along the
+boundaries of the obstacles which link up the line segments.
+
+How can we use A* to generate this type of path? Let's start with a
+review of how A* works.
 
 # A\* Algorithm
 
@@ -27,9 +58,15 @@ Review A\*, emphasizing that it works on graphs. We'll want to represent the sur
 
 # Graph
 
-Show the graph corresponding to the initial diagram, with surfing and hugging edges. Simplications: player is a point instead of a circle, and the obstacles don't intersect.
+Show the graph corresponding to the initial diagram, with surfing and
+hugging edges. Simplications: player is a point instead of a circle,
+and the obstacles don't intersect.
 
-Every node is on a circle (or is the start/end point), and every edge is either a hugging edge between two points on the same circle, or a surfing edge between two points on different circles
+Every node is on a circle (or is the start/end point), and every edge
+is either a hugging edge between two points on the same circle, or a
+surfing edge between two points on different circles
+
+
 
 ## Generating surfing edges
 
@@ -48,8 +85,8 @@ bitangents_.
 
 Historically, internal bitangents were important for calculating the
 length of a belt which crosses over two different sized pulleys, and
-the problem of constructing internal bitangents is known as the _belt
-problem_.  To find the internal bitangents, calculate the angle theta
+so the problem of constructing internal bitangents is known as the _belt
+problem_.  To find the internal bitangents, calculate the angle &theta;
 in the diagram below.
 
 <svg id="belt-problem" width="600" height="300">
@@ -81,12 +118,12 @@ in the diagram below.
   </template>
 </svg>
 
-Given circles A and B with radii r1 and r2, with centers separated by distance
-P, theta = acos((r1 + r2) / P). Note that when the two circles
-overlap, (r1 + r2) is greater than P, and their ratio is greater than
-1. Arccosine is not defined for values outside the range [-1 .. 1],
-and therefore there are no internal bitangents between overlapping
-circles.
+Given circles A and B with radius r1 and r2, with centers separated by
+distance P, theta = acos((r1 + r2) / P). Note that when the two
+circles overlap, (r1 + r2) is greater than P, and their ratio is
+greater than one. Arccosine is not defined for values outside the
+range [-1..1], and there are no internal bitangents between
+overlapping circles.
 
 ### External bitangents
 
@@ -125,14 +162,14 @@ similar technique.
 For external bitangents, &theta; = acos((r1 - r2) / P). It doesn't
 matter whether circle A or B is bigger, but as shown in the diagram,
 &theta; appears on the side of A toward B, but on the side of B away
-from A. But if the difference in size of the two circles is greater
-than the separation of the centers, then acos((r1 - r2) / P) is
-undefined. This mean one circle is completely inside the other, and
-there are no external bitangents for the circles.
+from A. If the difference in size of the two circles is greater than
+the separation of the centers, acos((r1 - r2) / P) is undefined. This
+corresponds to the case where one circle is completely inside the
+other, for which there are no external bitangents.
 
 ## Generating hugging edges
 
-A hugging edge is an arc of a circles which connects the endpoints of
+A hugging edge is an arc of a circle which connects the endpoints of
 two different bitangents which touch the circle.  Each hugging edge
 starts at the endpoint of a bitangent, traverses around the circle,
 and terminates at the endpoint of a different bitangent. Importantly,
@@ -142,6 +179,10 @@ circle, and the direction of the hugging edge&mdash;clockwise or
 anticlockwise&mdash;determines which bitangents can serve as the
 termination of the hugging edge.
 
+Possible diagram: Show a circle with some tangents leading off of
+it. Highlight one hugging edge and show how it starts and ends at the
+right kind of endpoint. Show bad example too?
+
 Every endpoint of every bitangent is one of two kinds: the kind that
 can start clockwise hugging edges and terminate anticlockwise hugging
 edges, or the kind that can start anticlockwise hugging edges and
@@ -149,13 +190,17 @@ terminate clockwise hugging edges. Both the endpoints of an internal
 bitangent are the same type; the endpoints of an external bitangent
 are opposite types.
 
+Interactive diagram: three draggable circles with all bitangents
+drawn, with each bitangent endpoint drawn red or blue.
+
 To find the set of hugging edges for a circle, collect all the
 bitangent endpoints on the circle. Then for each endpoint of one type,
-generate a hugging edge ot each endpoint of the other type.
+generate a hugging edge to each endpoint of the opposite type.
 
 ## Line of sight
 
-Diagram with three circles shows that some of the surfing edges don't actually work because they're blocked. Implement line of sight here
+Diagram with three circles shows that some of the surfing edges don't
+actually work because they're blocked. Implement line of sight here
 
 # MVP Demo
 
