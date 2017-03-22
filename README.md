@@ -38,18 +38,18 @@ Every node is on a circle (or is the start/end point), and every edge is either 
 - pulley problem, belt problem
 
 The surfing edges between a pair of circles are the line segments
-which just kiss the circles; these segments are known as bitangents,
+which just kiss the circles; these segments are known as _bitangents_,
 and in general, there are four of them for each pair of circles. The
-bitangents which cross between the circles are the internal
-bitangents, while the ones which go along the outside are the external
-bitangents.
+bitangents which cross between the circles are the _internal
+bitangents_, while the ones which go along the outside are the _external
+bitangents_.
 
 ### Internal bitangents
 
 Historically, internal bitangents were important for calculating the
 length of a belt which crosses over two different sized pulleys, and
-the problem of constructing internal bitangents is known as the belt
-problem.  To find the internal bitangents, calculate the angle theta
+the problem of constructing internal bitangents is known as the _belt
+problem_.  To find the internal bitangents, calculate the angle theta
 in the diagram below.
 
 <svg id="belt-problem" width="600" height="300">
@@ -90,7 +90,8 @@ circles.
 
 ### External bitangents
 
-Finding external bitangents is also easy (the "pully problem").
+Constructing external bitangents&mdash;the _pulley problem_&mdash;uses a
+similar technique.
 
 <svg id="pulley-problem" width="600" height="300">
   <circle id="pulley-circle-1" class="draggable" :cx="A.x" :cy="A.y" :r="A.r" fill="hsl(240,10%,90%)"/>
@@ -121,9 +122,9 @@ Finding external bitangents is also easy (the "pully problem").
   </template>
 </svg>
 
-For external bitangents, theta = acos((r1 - r2) / P). It doesn't
+For external bitangents, &theta; = acos((r1 - r2) / P). It doesn't
 matter whether circle A or B is bigger, but as shown in the diagram,
-theta appears on the side of A toward B, but on the side of B away
+&theta; appears on the side of A toward B, but on the side of B away
 from A. But if the difference in size of the two circles is greater
 than the separation of the centers, then acos((r1 - r2) / P) is
 undefined. This mean one circle is completely inside the other, and
@@ -131,6 +132,26 @@ there are no external bitangents for the circles.
 
 ## Generating hugging edges
 
+A hugging edge is an arc of a circles which connects the endpoints of
+two different bitangents which touch the circle.  Each hugging edge
+starts at the endpoint of a bitangent, traverses around the circle,
+and terminates at the endpoint of a different bitangent. Importantly,
+the starting bitangent determines the direction the hugging edge
+takes&mdash;clockwise or anticlockwise&mdash;as it travels around the
+circle, and the direction of the hugging edge&mdash;clockwise or
+anticlockwise&mdash;determines which bitangents can serve as the
+termination of the hugging edge.
+
+Every endpoint of every bitangent is one of two kinds: the kind that
+can start clockwise hugging edges and terminate anticlockwise hugging
+edges, or the kind that can start anticlockwise hugging edges and
+terminate clockwise hugging edges. Both the endpoints of an internal
+bitangent are the same type; the endpoints of an external bitangent
+are opposite types.
+
+To find the set of hugging edges for a circle, collect all the
+bitangent endpoints on the circle. Then for each endpoint of one type,
+generate a hugging edge ot each endpoint of the other type.
 
 ## Line of sight
 
