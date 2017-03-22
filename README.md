@@ -33,13 +33,24 @@ Every node is on a circle (or is the start/end point), and every edge is either 
 
 ## Generating surfing edges
 
-The surfing edges between a pair of circles are the line segments
-which just kiss the circles; these segments are known as bitangents,
-and in general, there are four of them for each pair of circles.
-
 - Given two circles, generate the nodes and edges for the graph
 - bitangents, biarcs
 - pulley problem, belt problem
+
+The surfing edges between a pair of circles are the line segments
+which just kiss the circles; these segments are known as bitangents,
+and in general, there are four of them for each pair of circles. The
+bitangents which cross between the circles are the internal
+bitangents, while the ones which go along the outside are the external
+bitangents.
+
+### Internal bitangents
+
+Historically, internal bitangents were important for calculating the
+length of a belt which crosses over two different sized pulleys, and
+the problem of constructing internal bitangents is known as the belt
+problem.  To find the internal bitangents, calculate the angle theta
+in the diagram below.
 
 <svg id="belt-problem" width="600" height="300">
   <circle id="belt-circle-1" class="draggable" :cx="A.x" :cy="A.y" :r="A.r" fill="hsl(240,10%,90%)"/>
@@ -70,6 +81,16 @@ and in general, there are four of them for each pair of circles.
   </template>
 </svg>
 
+Given circles A and B with radii r1 and r2, with centers separated by distance
+P, theta = acos((r1 + r2) / P). Note that when the two circles
+overlap, (r1 + r2) is greater than P, and their ratio is greater than
+1. Arccosine is not defined for values outside the range [-1 .. 1],
+and therefore there are no internal bitangents between overlapping
+circles.
+
+### External bitangents
+
+Finding external bitangents is also easy (the "pully problem").
 
 <svg id="pulley-problem" width="600" height="300">
   <circle id="pulley-circle-1" class="draggable" :cx="A.x" :cy="A.y" :r="A.r" fill="hsl(240,10%,90%)"/>
@@ -99,6 +120,14 @@ and in general, there are four of them for each pair of circles.
     <text x="300" y="15">Smaller circle entirely contained in larger one</text>
   </template>
 </svg>
+
+For external bitangents, theta = acos((r1 - r2) / P). It doesn't
+matter whether circle A or B is bigger, but as shown in the diagram,
+theta appears on the side of A toward B, but on the side of B away
+from A. But if the difference in size of the two circles is greater
+than the separation of the centers, then acos((r1 - r2) / P) is
+undefined. This mean one circle is completely inside the other, and
+there are no external bitangents for the circles.
 
 ## Generating hugging edges
 
