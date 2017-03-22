@@ -13,73 +13,90 @@ line { fill: none; stroke: black; }
 
 
 
-# Problem statement
+# Navigating a forest
 
 The A* pathfinding algorithm is a powerful method for quickly
-generating optimal paths. Typically, it is demonstrated navigating
-grid-based maps such as this one, avoiding obstacles to reach its
-goal.
+generating optimal paths. Typically, people demonstrate A* navigating
+grid-based maps such as this one, avoiding obstacles to reach a goal.
 
 [Diagram here]
 
-But A* isn't just a grid algorithm! It can work on any graph, not just
-a 2D grid. We can use A* to find a path for this round object through
-this world of round obstacles.
+But A* isn't just a grid algorithm! It can work on any graph. We can
+use A* to find a path for this round object through this world of
+round obstacles.
 
 [Diagram here]
 
 How does the same algorithm solve both problems?
 
-## Path
+## First steps
 
 When navigating a round object through a world of round obstacles, we
-can make a few observations that will simplify the problem. First, we
-can make things easier by noticing that moving a circle of radius R
+can make a few observations that simplify the problem. First, we can
+make things easier by noticing that moving a circle of radius _r_
 through a forest of round obstacles is identical to moving a point
 through that same forest with one change: each obstacle has its radius
-increased by R. This is an extremely simple application of _Minkowski
-addition_, and it's so effective for this case that from now on we'll
-consider finding paths for moving points. We'll ignore the radius of
-the moving object.
+increased by _r_. This is an extremely simple application of
+_Minkowski addition_, and it's so effective for this case that from
+now on we'll ignore the radius of the moving object. If it has a
+radius larger than zero, we'll just increase the size of the obstacles
+before we start.
 
 Another observation to make about the problem is that the paths
 consist of two types of sections: line segments and circular arcs. The
-endpoints of the line segments can be the starting point or the ending
-point, but they can also be points on the circular obstacles which are
+endpoints of the line segments can be the starting or ending points,
+but they can also be points on the circular obstacles which are
 tangent to the line segments. The circular arcs are paths along the
 boundaries of the obstacles which link up the line segments.
+
+Also notice that the paths alternate between the two types of
+sections. The first section is always a line segment. If there is a
+direct path to the goal, this is the only piece of the path. But if
+the path is longer, there is an arc next, followed by a
+segment. This may be the end of the path, or there may be more arc and
+segment pairs. The final piece is always a segment.
 
 How can we use A* to generate this type of path? Let's start with a
 review of how A* works.
 
-# A\* Algorithm
+# A\* algorithm
 
-Review A\*, emphasizing that it works on graphs. We'll want to represent the surfing and hugging edges, as well as the nodes, in this graph. A\* is versatile and does not need to be modified for this problem (is this true?). 
+Review A\*, emphasizing that it works on graphs. We'll want to
+represent the surfing and hugging edges, as well as the nodes, in this
+graph. A\* is versatile and does not need to be modified for this
+problem (is this true?).
 
 # Graph
 
-Show the graph corresponding to the initial diagram, with surfing and
-hugging edges. Simplications: player is a point instead of a circle,
-and the obstacles don't intersect.
+It's time to convert the forest into a graph that A* can use. Remember
+that all the paths consist of line segments and arc sections. The
+segments and arcs act as edges in the graph; the endpoints of the
+segments and arcs become the nodes. A path through this graph is a
+series of nodes (that is, segment or arc endpoints) connected by edges
+(that is, segments or arcs).
 
-Every node is on a circle (or is the start/end point), and every edge
-is either a hugging edge between two points on the same circle, or a
-surfing edge between two points on different circles
+[interactive diagram showing the path broken into segments and arcs with
+common endpoints]
 
+Both segments and arcs act as edges in the graph. We'll call the
+segments _surfing edges_, because the path uses them to surf between
+obstacles. The arcs we'll call _hugging edges_, as their purpose in
+the path is to hug the sides of the obstacles.
 
+One simple way to make a graph for A* to use is to generate all
+possible surfing and hugging edges.
+
+[interactive diagram showing all surfing and hugging edges for a small
+3-obstacle problem]
 
 ## Generating surfing edges
 
-- Given two circles, generate the nodes and edges for the graph
-- bitangents, biarcs
-- pulley problem, belt problem
-
 The surfing edges between a pair of circles are the line segments
-which just kiss the circles; these segments are known as _bitangents_,
-and in general, there are four of them for each pair of circles. The
-bitangents which cross between the circles are the _internal
-bitangents_, while the ones which go along the outside are the _external
-bitangents_.
+which just kiss both circles; these segments are known as
+_bitangents_, and in general, there are four of them for each pair of
+circles. The bitangents which cross between the circles are the
+_internal bitangents_, while the ones which go along the outside are
+the _external bitangents_.
 
 ### Internal bitangents
 
@@ -118,12 +135,12 @@ in the diagram below.
   </template>
 </svg>
 
-Given circles A and B with radius r1 and r2, with centers separated by
-distance P, theta = acos((r1 + r2) / P). Note that when the two
-circles overlap, (r1 + r2) is greater than P, and their ratio is
-greater than one. Arccosine is not defined for values outside the
-range [-1..1], and there are no internal bitangents between
-overlapping circles.
+It turns out that, given circles A and B with radius r1 and r2, and
+centers separated by distance P, theta = acos((r1 + r2) / P). Note
+that when the two circles overlap, (r1 + r2) is greater than P, and
+thus the ratio is greater than one. Arccosine is not defined for
+values outside the range [-1..1], and there are no internal bitangents
+between overlapping circles.
 
 ### External bitangents
 
