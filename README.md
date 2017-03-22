@@ -25,7 +25,8 @@ But A* isn't just a grid algorithm! It can work on any graph. We can
 use A* to find a path for this round object through this world of
 round obstacles.
 
-[Diagram here]
+[Diagram here, with lots of obstacles, draggable start/endpoints, slider
+for actor radius]
 
 How does the same algorithm solve both problems?
 
@@ -49,12 +50,14 @@ but they can also be points on the circular obstacles which are
 tangent to the line segments. The circular arcs are paths along the
 boundaries of the obstacles which link up the line segments.
 
-Also notice that the paths alternate between the two types of
-sections. The first section is always a line segment. If there is a
-direct path to the goal, this is the only piece of the path. But if
-the path is longer, there is an arc next, followed by a
-segment. This may be the end of the path, or there may be more arc and
-segment pairs. The final piece is always a segment.
+Also notice that the paths alternate between the two types. The first
+piece is always a line segment. If there is a direct path to the goal,
+this is the whole path. But if the path is longer, there is an arc
+next, followed by a segment. This may be the end of the path, or there
+may be more arc and segment pairs. The final piece is always a
+segment.
+
+[Diagram here: fixed start/end, two draggable obstacles]
 
 How can we use A* to generate this type of path? Let's start with a
 review of how A* works.
@@ -92,7 +95,7 @@ possible surfing and hugging edges.
 ## Generating surfing edges
 
 The surfing edges between a pair of circles are the line segments
-which just kiss both circles; these segments are known as
+which just barely kiss both circles; these segments are known as
 _bitangents_, and in general, there are four of them for each pair of
 circles. The bitangents which cross between the circles are the
 _internal bitangents_, while the ones which go along the outside are
@@ -186,19 +189,17 @@ other, for which there are no external bitangents.
 
 ## Generating hugging edges
 
-A hugging edge is an arc of a circle which connects the endpoints of
-two different bitangents which touch the circle.  Each hugging edge
-starts at the endpoint of a bitangent, traverses around the circle,
-and terminates at the endpoint of a different bitangent. Importantly,
-the starting bitangent determines the direction the hugging edge
-takes&mdash;clockwise or anticlockwise&mdash;as it travels around the
-circle, and the direction of the hugging edge&mdash;clockwise or
-anticlockwise&mdash;determines which bitangents can serve as the
-termination of the hugging edge.
+Each hugging edge starts at the endpoint of a bitangent, traverses
+around the circle, and terminates at the endpoint of a different
+bitangent. Importantly, the starting bitangent determines the
+direction the hugging edge takes&mdash;clockwise or
+anticlockwise&mdash;as it travels around the circle, and the direction
+of the hugging edge&mdash;clockwise or anticlockwise&mdash;determines
+which bitangents can serve as the termination of the hugging edge.
 
-Possible diagram: Show a circle with some tangents leading off of
+[Possible diagram: Show a circle with some tangents leading off of
 it. Highlight one hugging edge and show how it starts and ends at the
-right kind of endpoint. Show bad example too?
+right kind of endpoint. Show bad example too?]
 
 Every endpoint of every bitangent is one of two kinds: the kind that
 can start clockwise hugging edges and terminate anticlockwise hugging
@@ -207,8 +208,11 @@ terminate clockwise hugging edges. Both the endpoints of an internal
 bitangent are the same type; the endpoints of an external bitangent
 are opposite types.
 
-Interactive diagram: three draggable circles with all bitangents
-drawn, with each bitangent endpoint drawn red or blue.
+[TODO: Come up with a good name for the two classes. "left" and
+"right"?]
+
+[Interactive diagram: three draggable circles with all bitangents
+drawn, with each bitangent endpoint drawn red or blue.]
 
 To find the set of hugging edges for a circle, collect all the
 bitangent endpoints on the circle. Then for each endpoint of one type,
