@@ -64,19 +64,47 @@ review of how A* works.
 
 # A\* algorithm
 
-Review A\*, emphasizing that it works on graphs. We'll want to
-represent the surfing and hugging edges, as well as the nodes, in this
-graph. A\* is versatile and does not need to be modified for this
-problem (is this true?).
+A _partial path_ is a series of steps from the start point to some
+intermediate point. A* works by evaluating a set of partial paths,
+generating new paths from the most promising path in the set, and
+terminating once it finds a complete path to the goal that it can
+prove to be better than any of the remaining possibilities. To do
+this, A* keeps the partial paths in a priority queue, sorted by
+estimated length. A partial path's estimated length is the actual
+measured length of the path so far, plus a guess of the remaining
+distance to the goal. This guess must be an _underestimate_; that is,
+the guess can be less than the actual distance, but not greater. In
+most pathfinding problems, a good underestimate is the geometric
+straight-line distance from the intermediate point to the goal. The
+actual best path from an intermediate point to the goal might be
+longer than the straight line distance, but it can't be shorter.
+
+When A* begins, the priority queue contains just one partial path: the
+start point. The algorithm works by repeatedly removing the most
+promising path from the priority queue. If this path ends at the goal
+point, the algorithm is done&mdash;the priority queue ensures that no
+other path could possibly be better. Otherwise, A* generates a set of
+new paths by taking single steps in all possible directions, and
+places these new paths back into the priority queue.
 
 # Graph
 
-It's time to convert the forest into a graph that A* can use. Remember
-that all the paths consist of line segments and arc sections. The
+A* works on a _graph_: a collection of _nodes_ connected by
+_edges_. When generating new paths from a partial path that ends at
+node _q_, A* makes a new path for each out-edge leading from _q_. In a
+grid-based world that doesn't support diagonal movement, the new paths
+correspond to taking one step north, south, east and west. On a grid
+with diagonal movement, A* makes additional paths for going northeast,
+southeast, etc.
+
+Before A* can run on the forest of round obstacles, we need to convert
+it into a graph that A* can use. Remember that all the paths through
+the forest consist of alternating line segments and arc sections. The
 segments and arcs act as edges in the graph; the endpoints of the
-segments and arcs become the nodes. A path through this graph is a
-series of nodes (that is, segment or arc endpoints) connected by edges
-(that is, segments or arcs).
+segments and arcs&mdash;and the start and goal points&mdash;become the
+nodes. A path through this graph is a series of nodes (that is,
+segment or arc endpoints) connected by edges (that is, segments or
+arcs).
 
 [interactive diagram showing the path broken into segments and arcs with
 common endpoints]
