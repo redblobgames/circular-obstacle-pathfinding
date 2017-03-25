@@ -7,6 +7,8 @@ svg { pointer-events: none; }
 text { font-family: helvetica; font-size: 16px; text-anchor: middle; }
 line { fill: none; stroke: black; }
 .dashed { stroke-dasharray: 4,3; }
+.graph-node { fill: hsl(220,75%,50%); }
+.graph-edge { fill: none; stroke: hsl(120,50%,50%); stroke-width: 2px; }
 .draggable { pointer-events: visible; cursor: move; }
 .draggable:hover { filter:url(#drop-shadow); }
 </style>
@@ -150,8 +152,12 @@ in the diagram below.
     <line class="dashed" :x1="A.x" :y1="A.y" :x2="D.x" :y2="D.y"/>
     <line class="dashed" :x1="B.x" :y1="B.y" :x2="E.x" :y2="E.y"/>
     <line class="dashed" :x1="B.x" :y1="B.y" :x2="F.x" :y2="F.y"/>
-    <line :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" stroke-width="2" style="stroke:hsl(240,50%,50%)"/>
-    <line :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" stroke-width="2" style="stroke:hsl(240,50%,50%)"/>
+    <line class="graph-edge" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y"/>
+    <line class="graph-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y"/>
+    <circle class="graph-node" :cx="C.x" :cy="C.y" r="5"/>
+    <circle class="graph-node" :cx="D.x" :cy="D.y" r="5"/>
+    <circle class="graph-node" :cx="E.x" :cy="E.y" r="5"/>
+    <circle class="graph-node" :cx="F.x" :cy="F.y" r="5"/>
     <belt-label :at="C" :opposite="A" label="C"/>
     <belt-label :at="D" :opposite="A" label="D"/>
     <belt-label :at="E" :opposite="B" label="E"/>
@@ -191,8 +197,12 @@ similar technique.
     <line class="dashed" :x1="A.x" :y1="A.y" :x2="D.x" :y2="D.y"/>
     <line class="dashed" :x1="B.x" :y1="B.y" :x2="E.x" :y2="E.y"/>
     <line class="dashed" :x1="B.x" :y1="B.y" :x2="F.x" :y2="F.y"/>
-    <line :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" stroke-width="2" style="stroke:hsl(240,50%,50%)"/>
-    <line :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" stroke-width="2" style="stroke:hsl(240,50%,50%)"/>
+    <line class="graph-edge" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y"/>
+    <line class="graph-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y"/>
+    <circle class="graph-node" :cx="C.x" :cy="C.y" r="5"/>
+    <circle class="graph-node" :cx="D.x" :cy="D.y" r="5"/>
+    <circle class="graph-node" :cx="E.x" :cy="E.y" r="5"/>
+    <circle class="graph-node" :cx="F.x" :cy="F.y" r="5"/>
     <belt-label :at="C" :opposite="A" label="C"/>
     <belt-label :at="D" :opposite="A" label="D"/>
     <belt-label :at="E" :opposite="B" label="E"/>
@@ -225,9 +235,32 @@ anticlockwise&mdash;as it travels around the circle, and the direction
 of the hugging edge&mdash;clockwise or anticlockwise&mdash;determines
 which bitangents can serve as the termination of the hugging edge.
 
-[Possible diagram: Show a circle with some tangents leading off of
-it. Highlight one hugging edge and show how it starts and ends at the
-right kind of endpoint. Show bad example too?]
+<svg id="hugging-edge" width="600" height="300">
+  <template v-if="valid">
+    <line :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" fill="none" stroke="black"/>
+    <line :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" fill="none" stroke="black"/>
+  </template>
+  <circle id="hugging-edge-left" class="draggable" :cx="A.x" :cy="A.y" r="10" fill="hsl(240,10%,90%)"/>
+  <circle id="hugging-edge-right" class="draggable" :cx="E.x" :cy="E.y" r="10" fill="hsl(240,10%,90%)"/>
+  <circle id="hugging-edge-circle" class="draggable" :cx="C.x" :cy="C.y" :r="C.r" fill="hsl(240,10%,90%)"/>
+  <template v-if="valid">
+    <line class="dashed" :x1="C.x" :y1="C.y" :x2="B.x" :y2="B.y"/>
+    <line class="dashed" :x1="C.x" :y1="C.y" :x2="D.x" :y2="D.y"/>
+    <belt-label :at="C" :opposite="mid_BD" label="C"/>
+    <belt-label :at="B" :opposite="C" label="B"/>
+    <belt-label :at="D" :opposite="C" label="D"/>
+  </template>
+  <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black"/>
+  <template v-if="valid">
+    <path class="graph-edge" :d="arc_path"/>
+    <circle class="graph-node" :cx="B.x" :cy="B.y" r="5"/>
+    <circle class="graph-node" :cx="D.x" :cy="D.y" r="5"/>
+  </template>
+</svg>
+
+[TODO: diagram doesn't work when angle >180°]
+
+[TODO: is left/right an optimization we can leave for later, or do we need a diagram to show it now?]
 
 Every endpoint of every bitangent is one of two kinds: the kind that
 can start clockwise hugging edges and terminate anticlockwise hugging
@@ -304,5 +337,3 @@ exercise for the reader
 <script src="https://unpkg.com/vue"></script>
 <script src="draggable.js"></script>
 <script src="belt-problem.js"></script>
-
-<!-- hhmts start -->Last modified: 20 Mar 2017<!-- hhmts end -->

@@ -13,6 +13,10 @@ function vec_add(p, q) {
     return {x: p.x + q.x, y: p.y + q.y};
 }
 
+function vec_interpolate(p, q, t) {
+    return {x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t};
+}
+
 function vec_facing(p, q) {
     const dx = q.x - p.x, dy = q.y - p.y;
     return Math.atan2(dy, dx);
@@ -29,10 +33,11 @@ Vue.component('belt-label', {
     computed: {
         shove: function() {
             const angle = vec_facing(this.at, this.opposite);
-            return vec_add(TEXT_OFFSET, vec_polar(-10, angle));
+            return vec_add(TEXT_OFFSET, vec_polar(-15, angle));
         }
     }
 });
+
 
 let belt_problem = new Vue({
     el: "#belt-problem",
@@ -129,6 +134,31 @@ let pulley_problem = new Vue({
 });
 
 
+let hugging_edge = new Vue({
+    el: "#hugging-edge",
+    data: {
+        A: {x: 150, y: 200},
+        C: {x: 300, y: 100, r: 40},
+        E: {x: 450, y: 200}
+    },
+    computed: {
+        valid: function() { return !isNaN(this.angle_to_A) && !isNaN(this.angle_to_E); },
+        mid_BD: function() { return vec_interpolate(this.B, this.D, 0.5); },
+        angle_to_A: function() {
+            return vec_facing(this.C, this.A) + Math.acos(this.C.r / vec_distance(this.C, this.A));
+        },
+        angle_to_E: function() {
+            return vec_facing(this.C, this.E) - Math.acos(this.C.r / vec_distance(this.C, this.E));
+        },
+        B: function() { return vec_add(this.C, vec_polar(this.C.r, this.angle_to_A)); },
+        D: function() { return vec_add(this.C, vec_polar(this.C.r, this.angle_to_E)); },
+        arc_path: function() {
+            // TODO: large-arc flag
+            return `M ${this.B.x},${this.B.y} A ${this.C.r},${this.C.r} 0 0 1 ${this.D.x},${this.D.y}`;
+        }
+    }
+});
+
 
 function makeCircleDraggable(reference, element, coordinates) {
     makeDraggable(reference, element,
@@ -144,5 +174,8 @@ makeCircleDraggable($('belt-problem'), $('belt-circle-1'), belt_problem.A);
 makeCircleDraggable($('belt-problem'), $('belt-circle-2'), belt_problem.B);
 makeCircleDraggable($('pulley-problem'), $('pulley-circle-1'), pulley_problem.A);
 makeCircleDraggable($('pulley-problem'), $('pulley-circle-2'), pulley_problem.B);
+makeCircleDraggable($('hugging-edge'), $('hugging-edge-left'), hugging_edge.A);
+makeCircleDraggable($('hugging-edge'), $('hugging-edge-circle'), hugging_edge.C);
+makeCircleDraggable($('hugging-edge'), $('hugging-edge-right'), hugging_edge.E);
 
 // TODO: might be better to make the draggable into a vue component, but this works for now
