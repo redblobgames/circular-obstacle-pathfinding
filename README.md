@@ -317,32 +317,78 @@ drawn, with each bitangent endpoint drawn red or blue.]
 
 To find the set of hugging edges for a circle, collect all the
 bitangent endpoints on the circle. Then for each endpoint of one type,
-generate a hugging edge to each endpoint of the opposite type.
+generate a hugging edge to each endpoint of the opposite type, going
+around the circle in the appropriate direction.
 
 ### Line of sight
 
+Hugging edges can be blocked by obstacles just as surfing edges
+can. Consider the hugging edge in the diagram below. If another
+obstacle touches the hugging edge, it's blocked and should be thrown
+out.
+
+[Diagram with a fixed hugging edge between two points on the circle. A
+second circle can be dragged; if it touches the hugging edge, the edge
+gets grayed out.]
+
+To determine whether a hugging edge is blocked by another obstacle,
+determine the points at which to two circles intersect.
+
+```
+
+// http://paulbourke.net/geometry/circlesphere/
+// returns bearings to intersections of c0 & c1, as seen from c0.center
+void getIntersectionAnglesOnC0(const Circle &c0, const Circle &c1,
+                               std::vector<double> *intersections) {
+  const auto d = dist(c0.center, c1.center);
+  if (d > c0.radius + c1.radius) return;            // not touching
+  if (d < std::abs(c0.radius - c1.radius)) return;  // subsumed
+  if (d == 0 && c0.center == c1.center) return;     // coincident
+
+  // a is dist from c0 to closest point on "radical line" which connects the two
+  // intersection points
+  // a = (r0^2 - r1^2 + d^2 ) / (2 d)
+  const auto a =
+      (c0.radius * c0.radius - c1.radius * c1.radius + d * d) / (2 * d);
+
+  // my shortcut here, we just want the bearings not the points
+  const auto theta = std::acos(a / c0.radius);
+  const auto bearing = bearingFrom(c0.center, c1.center);
+  intersections->push_back(bearing + theta);
+  if (theta != 0) intersections->push_back(bearing - theta);
+}
+
+```
+
+[Diagram with two draggable circles, showing points of intersection.]
+
+Next, determine whether either of the intersection points fall between
+the start and end points of the hugging edge. If this is the case,
+then the obstacle blocks the hugging edge, and we should discard the
+edge.  Note that we don't have to worry about the case where the
+hugging edge is entirely contained within an obstacle, as the line of
+sight culling for surfing edges will have already thrown the edge out.
+
+# Putting it all together
+
+Given Minkowski expansion of obstacles, the generation of surfing and
+hugging edges, and the culling of blocked edges, we can run
+pathfinding using the A* algorithm.
+
+[Diagram: full demo]
 
 
-
-# MVP Demo
-
-We have enough to run pathfinding
 
 # Enhancements
 
-## left/right direction
 
-Not sure how to explain this yet
+## Delayed edge generation
 
-### delay edge generation
+In the pathfinding demo show which edges were even looked at. If these
+things are moving around, we can delay generating that graph by moving
+the edge generation to the neighbors() function
 
-In the pathfinding demo show which edges were even looked at. If these things are moving around, we can delay generating that graph by moving the edge generation to the neighbors() function
-
-## overlapping circles
-
-Show the bitangent diagram, but this time with circles overlapping, we need the belt problem but not the pulley problem
-
-## polygonal obstacles
+## Polygonal obstacles
 
 exercise for the reader
 
@@ -357,7 +403,8 @@ exercise for the reader
 
 - Belt problem
 - Pulley problem
-
+- Point line distance
+- Intersection of two circles
 
 <svg width="0" height="0">
   <defs>
