@@ -247,6 +247,7 @@ To calculate the distance from a point to a line segment, use the following
 formula (from http://paulbourke.net/geometry/pointlineplane/):
 
 ```
+
 float pointLineDeterminant(const FPoint &p, const FPoint &A, const FPoint &B) {
   return ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y)) /
 	 ((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y));
@@ -260,6 +261,7 @@ float pointLineSqDist(const FPoint &p, const FPoint &A, const FPoint &B) {
   if (u > 1) return sqDist(p, B);
   return (A + u * (B - A) - p).sqmag();
 }
+
 ```
 
 
