@@ -93,20 +93,18 @@ places these new paths back into the priority queue.
 
 A* works on a _graph_: a collection of _nodes_ connected by
 _edges_. When generating new paths from a partial path that ends at
-node _q_, A* makes a new path for each out-edge leading from _q_. In a
-grid-based world that doesn't support diagonal movement, the new paths
-correspond to taking one step north, south, east and west. On a grid
-with diagonal movement, A* makes additional paths for going northeast,
-southeast, etc.
+node _q_, A* makes a new path for each edge leading out of _q_. In a
+grid-based world, each node represents an individual grid location,
+while each edge represents a connection to a neighboring location to
+the north, south, east and west.
 
 Before A* can run on the forest of round obstacles, we need to convert
-it into a graph that A* can use. Remember that all the paths through
-the forest consist of alternating line segments and arc sections. The
-segments and arcs act as edges in the graph; the endpoints of the
-segments and arcs&mdash;and the start and goal points&mdash;become the
-nodes. A path through this graph is a series of nodes (that is,
-segment or arc endpoints) connected by edges (that is, segments or
-arcs).
+it into a graph. Remember that all the paths through the forest
+consist of alternating line segments and arc sections. The segments
+and arcs act as edges in the graph; the endpoints of the segments and
+arcs&mdash;and the start and goal points&mdash;become the nodes. A
+path through this graph is a series of nodes (that is, segment or arc
+endpoints) connected by edges (that is, segments or arcs).
 
 [interactive diagram showing the path broken into segments and arcs with
 common endpoints]
@@ -116,8 +114,8 @@ segments _surfing edges_, because the path uses them to surf between
 obstacles. The arcs we'll call _hugging edges_, as their purpose in
 the path is to hug the sides of the obstacles.
 
-One simple way to make a graph for A* to use is to generate all
-possible surfing and hugging edges.
+Next we'll explore a simple way to turn the obstacle forest into a
+graph: generate all of the possible surfing and hugging edges.
 
 [interactive diagram showing all surfing and hugging edges for a small
 3-obstacle problem]
@@ -229,19 +227,17 @@ other, for which there are no external bitangents.
 
 Taken together, the internal and external bitangents between two
 circles constitute surfing edges between the circles. But what if a
-third circle blocks some of the surfing edges?
+third circle blocks one or more of the surfing edges?
 
 [Diagram with two fixed circles with bitangents drawn between them. A
 third circle can be moved so that it blocks some of the bitangents,
 graying them out.]
 
-If a surfing edge is blocked by another circle, we need to throw it
-out.  To detect this case, we use a simple _point-line-distance_
-calculation. For each obstacle other than the two obstacles on which
-the surfing edge terminates, we determine the distance from the
-surfing edge to the center of the obstacle. If the distance is less
-than the obstacle's radius, then the obstacle blocks the surfing edge,
-and we should throw it away.
+If a surfing edge is blocked by another circle, we need to throw the
+edge out.  To detect this case, we use a simple _point-line-distance_
+calculation. If the distance from the surfing edge to the obstacle's
+center is less than the obstacle's radius, then the obstacle blocks
+the surfing edge, and we should throw the edge away.
 
 To calculate the distance from a point to a line segment, use the following
 formula (from http://paulbourke.net/geometry/pointlineplane/):
@@ -267,13 +263,9 @@ float pointLineSqDist(const FPoint &p, const FPoint &A, const FPoint &B) {
 
 ## Generating hugging edges
 
-Each hugging edge starts at the endpoint of a bitangent, traverses
+Each hugging edge starts at the endpoint of a surfing edge, traverses
 around the circle, and terminates at the endpoint of a different
-bitangent. Importantly, the starting bitangent determines the
-direction the hugging edge takes&mdash;clockwise or
-anticlockwise&mdash;as it travels around the circle, and the direction
-of the hugging edge&mdash;clockwise or anticlockwise&mdash;determines
-which bitangents can serve as the termination of the hugging edge.
+surfing edge.
 
 <svg id="hugging-edge" width="600" height="300">
   <template v-if="valid">
@@ -302,23 +294,27 @@ which bitangents can serve as the termination of the hugging edge.
 
 [TODO: is left/right an optimization we can leave for later, or do we need a diagram to show it now?]
 
-Every endpoint of every bitangent is one of two kinds: the kind that
-can start clockwise hugging edges and terminate anticlockwise hugging
-edges, or the kind that can start anticlockwise hugging edges and
-terminate clockwise hugging edges. Both the endpoints of an internal
-bitangent are the same type; the endpoints of an external bitangent
-are opposite types.
-
-[TODO: Come up with a good name for the two classes. "left" and
-"right"?]
+Hugging edges connect surfing edges which touch the same circle, but
+not every pair of surfing edges which touch a circle can be connected
+by a hugging edge. Each surfing edge touching a circle can be
+classified into one of two types: _left_ edges and _right_
+edges. Viewed from the endpoint which is not touching the circle, left
+surfing edges intersect the left side of the circle, while right edges
+touch the circle on the right side. Every hugging edge connects a left
+surfing edge with a right surfing edge, traveling around the circle
+clockwise from the left edge to the right edge.
 
 [Interactive diagram: three draggable circles with all bitangents
-drawn, with each bitangent endpoint drawn red or blue.]
+drawn, with each bitangent endpoint drawn red or blue depending on
+whether they are left or right edges on that circle.]
 
-To find the set of hugging edges for a circle, collect all the
-bitangent endpoints on the circle. Then for each endpoint of one type,
-generate a hugging edge to each endpoint of the opposite type, going
-around the circle in the appropriate direction.
+To find the set of hugging edges for a circle, first collect all the
+surfing edge endpoints on the circle. Then for each left surfing edge
+endpoint, generate a hugging edge to each right surfing edge endpoint,
+traversing the circle clockwise. Because the graph is undirected, each
+of these hugging edges implies the existence of another hugging edge
+which starts at a right edge, traverses around the circle
+anticlockwise, and terminates on a left edge.
 
 ### Line of sight
 
@@ -369,6 +365,17 @@ edge.  Note that we don't have to worry about the case where the
 hugging edge is entirely contained within an obstacle, as the line of
 sight culling for surfing edges will have already thrown the edge out.
 
+## Nodes
+
+Nodes are the endpoints of hugging edges, plus the start and end
+points.  Some hugging edges may share endpoints, but these should be
+coalesced into single nodes only if the direction of travel is the
+same in both cases.
+
+Because all nodes (except the start and end points) are points on the
+perimeter of an obstacle, representation of nodes might best be done
+as angles as viewed from the obstacle's center.
+
 # Putting it all together
 
 Given Minkowski expansion of obstacles, the generation of surfing and
@@ -381,18 +388,27 @@ pathfinding using the A* algorithm.
 
 # Enhancements
 
-
 ## Delayed edge generation
 
 In the pathfinding demo show which edges were even looked at. If these
 things are moving around, we can delay generating that graph by moving
 the edge generation to the neighbors() function
 
+## Cull longer paths to same place
+
+Before putting new paths into the priority queue, see if we've been to
+this spot going the same direction for a cheaper cost already.
+
+## Crossing edge culling
+
+Cull partial paths whose final surfing edge crosses the penultimate
+surfing edge.
+
 ## Polygonal obstacles
 
 exercise for the reader
 
-## spatial index
+## Spatial index
 
 # Full demo
 
