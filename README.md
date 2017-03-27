@@ -225,6 +225,43 @@ the separation of the centers, acos((r1 - r2) / P) is undefined. This
 corresponds to the case where one circle is completely inside the
 other, for which there are no external bitangents.
 
+### Line of sight
+
+Taken together, the internal and external bitangents between two
+circles constitute surfing edges between the circles. But what if a
+third circle blocks some of the surfing edges?
+
+[Diagram with two fixed circles with bitangents drawn between them. A
+third circle can be moved so that it blocks some of the bitangents,
+graying them out.]
+
+If a surfing edge is blocked by another circle, we need to throw it
+out.  To detect this case, we use a simple _point-line-distance_
+calculation. For each obstacle other than the two obstacles on which
+the surfing edge terminates, we determine the distance from the
+surfing edge to the center of the obstacle. If the distance is less
+than the obstacle's radius, then the obstacle blocks the surfing edge,
+and we should throw it away.
+
+To calculate the distance from a point to a line segment, use the following
+formula (from http://paulbourke.net/geometry/pointlineplane/):
+
+```float pointLineDeterminant(const FPoint &p, const FPoint &A, const FPoint &B) {
+  return ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y)) /
+	 ((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y));
+}
+		 
+float sqDist(const FPoint &p1, const FPoint &p2) { return (p2 - p1).sqmag(); }
+
+float pointLineSqDist(const FPoint &p, const FPoint &A, const FPoint &B) {
+  const auto u = pointLineDeterminant(p, A, B);
+  if (u < 0) return sqDist(p, A);
+  if (u > 1) return sqDist(p, B);
+  return (A + u * (B - A) - p).sqmag();
+}
+```
+
+
 ## Generating hugging edges
 
 Each hugging edge starts at the endpoint of a bitangent, traverses
@@ -279,10 +316,10 @@ To find the set of hugging edges for a circle, collect all the
 bitangent endpoints on the circle. Then for each endpoint of one type,
 generate a hugging edge to each endpoint of the opposite type.
 
-## Line of sight
+### Line of sight
 
-Diagram with three circles shows that some of the surfing edges don't
-actually work because they're blocked. Implement line of sight here
+
+
 
 # MVP Demo
 
