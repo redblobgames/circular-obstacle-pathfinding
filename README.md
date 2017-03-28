@@ -301,8 +301,9 @@ classified into one of two types: _left_ edges and _right_
 edges. Viewed from the endpoint which is not touching the circle, left
 surfing edges intersect the left side of the circle, while right edges
 touch the circle on the right side. Every hugging edge connects a left
-surfing edge with a right surfing edge, traveling around the circle
-clockwise from the left edge to the right edge.
+surfing edge and a right surfing edge; if one were to traverse the
+hugging edge from the left surfing edge to the right surfing edge,
+travel around the circle would be clockwise.
 
 [Interactive diagram: three draggable circles with all bitangents
 drawn, with each bitangent endpoint drawn red or blue depending on
@@ -367,14 +368,12 @@ sight culling for surfing edges will have already thrown the edge out.
 
 ## Nodes
 
-Nodes are the endpoints of hugging edges, plus the start and end
-points.  Some hugging edges may share endpoints, but these should be
-coalesced into single nodes only if the direction of travel is the
-same in both cases.
-
-Because all nodes (except the start and end points) are points on the
-perimeter of an obstacle, representation of nodes might best be done
-as angles as viewed from the obstacle's center.
+Other that the start and end points, the graph's nodes are the
+endpoints of hugging edges.  Some hugging edges may share endpoints,
+and these can be coalesced into single nodes. This should happen only
+if the shared endpoint is on the same end of the hugging edge. The
+left endpoint of a hugging edge shouldn't coalesce with the right
+endpoint of another hugging edge.
 
 # Putting it all together
 
@@ -385,8 +384,9 @@ pathfinding using the A* algorithm.
 [Diagram: full demo]
 
 
-
 # Enhancements
+
+We could just eliminate this section for the first version.
 
 ## Delayed edge generation
 
