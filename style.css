@@ -1,0 +1,84 @@
+/* Diagrams */
+
+svg { pointer-events: none; }
+text { text-anchor: middle; }
+line { fill: none; stroke: black; }
+.dashed { stroke-dasharray: 4,3; }
+.graph-node { fill: hsl(220,75%,50%); }
+.graph-edge { fill: none; stroke: hsl(120,50%,50%); stroke-width: 2px; }
+.draggable { pointer-events: visible; cursor: move; }
+.draggable:hover { filter:url(#drop-shadow); }
+
+/* Fonts */
+
+body, text {
+    font-family: "Source Sans Pro", "Open Sans", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Tahoma", sans-serif;
+    font-size: 16px;
+}    
+tt, code, kbd, samp, pre {
+    font-family: "Source Code Pro", monospace, serif, "Segoe UI Symbol", "Symbol";
+    font-size: 13px;
+}
+h1, h2, h3, h4, h5, h6 { font-weight: 700; letter-spacing: -1px; }
+h1 { font-size: 43px; }
+h2 { font-size: 32px; }
+h3 { font-size: 24px; }
+h4, h5, h6 { font-size: 18px; }
+
+
+/* Layout */
+
+html {
+    margin: 0;
+    padding: 0;
+}
+body {
+    margin: 0;
+    padding: 0;
+    color: hsl(0,0%,20%);
+    background-color: hsl(0,0%,95%);
+    line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6, p, ul, ol, dl, pre { margin: 10px 0 15px 0; }
+p, ul, ol, dl { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+
+pre {
+    width: 100%;
+    padding: 10px;
+    overflow: auto;
+}
+code {
+    padding: 3px;
+    margin: 0 3px;
+}
+header div, section div, footer div {
+    max-width: 640px; padding: 20px 10px; margin: 0 auto;
+}
+
+
+/* Colors */
+
+a { text-decoration: none; color: hsl(240,50%,50%); }
+a:hover, a:focus { text-decoration: underline; }
+
+header, footer { color: hsl(0,0%,100%); background-color: hsl(0,0%,20%); }
+header a, footer a { color: #fff; text-decoration: underline; }
+
+pre, svg {
+    background-color: hsl(0,0%,100%);
+    border: 1px solid hsl(0,0%,80%);
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+
+/* "Fork Me on github" style from github */
+#forkme_banner {
+    display: block;
+    position: absolute; top: 0; right: 0px;
+    padding: 10px;
+    color: #fff;
+    background: #0090ff;
+    border-bottom-left-radius: 10px;
+}

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css"/>
+    <title>Circular Obstacle Pathfinding</title>
+    <meta name="description" content="Pathfinding around a set of circular obstacles"/>
+  </head>
+
+  <body>
+    <a id="forkme_banner" href="https://github.com/redblobgames/circular-obstacle-pathfinding">View on GitHub</a>
+    <header>
+      <div>
+        <h1>Circular Obstacle Pathfinding</h1>
+        <h2>Pathfinding around a set of circular obstacles</h2>
+      </div>
+    </header>
+
+    <section id="main_content">
+      <div>
+        
+        <address>Mar 2017</address>
+
+        <h2 id="navigating-a-forest">Navigating a forest</h2>
+
+        <p>
+          The A* pathfinding algorithm is a powerful method for quickly
+          generating optimal paths. Typically, people demonstrate A* navigating
+          grid-based maps such as this one, avoiding obstacles to reach a goal.
+        </p>
+
+        <p>
+          [Diagram here]
+        </p>
+
+        <p>
+          But A* isn’t just a grid algorithm! It can work on any graph. We can
+          use A* to find a path for this round object through this world of
+          round obstacles.
+        </p>
+
+        <p>
+          [Diagram here, with lots of obstacles, draggable start/endpoints, slider
+          for actor radius]
+        </p>
+
+        <p>
+          How does the same algorithm solve both problems?
+        </p>
+
+        <h3 id="first-steps">First steps</h3>
+
+        <p>
+          When navigating a round object through a world of round obstacles, we
+          can make a few observations that simplify the problem. First, we can
+          make things easier by noticing that moving a circle of radius <em>r</em>
+          through a forest of round obstacles is identical to moving a point
+          through that same forest with one change: each obstacle has its radius
+          increased by <em>r</em>. This is an extremely simple application of
+          <em>Minkowski addition</em>, and it’s so effective for this case that from
+          now on we’ll ignore the radius of the moving object. If it has a
+          radius larger than zero, we’ll just increase the size of the obstacles
+          before we start.
+        </p>
+
+        <p>
+          Another observation to make about the problem is that the paths
+          consist of two types of sections: line segments and circular arcs. The
+          endpoints of the line segments can be the starting or ending points,
+          but they can also be points on the circular obstacles which are
+          tangent to the line segments. The circular arcs are paths along the
+          boundaries of the obstacles which link up the line segments.
+        </p>
+
+        <p>
+          Also notice that the paths alternate between the two types. The first
+          piece is always a line segment. If there is a direct path to the goal,
+          this is the whole path. But if the path is longer, there is an arc
+          next, followed by a segment. This may be the end of the path, or there
+          may be more arc and segment pairs. The final piece is always a
+          segment.
+        </p>
+
+        <p>
+          [Diagram here: fixed start/end, two draggable obstacles]
+        </p>
+
+        <p>
+          How can we use A* to generate this type of path? Let’s start with a
+          review of how A* works.
+        </p>
+
+        <h2 id="a-algorithm">A* algorithm</h2>
+
+        <p>
+          A <em>partial path</em> is a series of steps from the start point to some
+          intermediate point. A* works by evaluating a set of partial paths,
+          generating new paths from the most promising path in the set, and
+          terminating once it finds a complete path to the goal that it can
+          prove to be better than any of the remaining possibilities. To do
+          this, A* keeps the partial paths in a priority queue, sorted by
+          estimated length. A partial path’s estimated length is the actual
+          measured length of the path so far, plus a guess of the remaining
+          distance to the goal. This guess must be an <em>underestimate</em>; that is,
+          the guess can be less than the actual distance, but not greater. In
+          most pathfinding problems, a good underestimate is the geometric
+          straight-line distance from the intermediate point to the goal. The
+          actual best path from an intermediate point to the goal might be
+          longer than the straight line distance, but it can’t be shorter.
+        </p>
+
+        <p>
+          When A* begins, the priority queue contains just one partial path: the
+          start point. The algorithm works by repeatedly removing the most
+          promising path from the priority queue. If this path ends at the goal
+          point, the algorithm is done—the priority queue ensures that no
+          other path could possibly be better. Otherwise, A* generates a set of
+          new paths by taking single steps in all possible directions, and
+          places these new paths back into the priority queue.
+        </p>
+
+        <h2 id="graph">Graph</h2>
+
+        <p>
+          A* works on a <em>graph</em>: a collection of <em>nodes</em> connected by
+          <em>edges</em>. When generating new paths from a partial path that ends at
+          node <em>q</em>, A* makes a new path for each edge leading out of <em>q</em>. In a
+          grid-based world, each node represents an individual grid location,
+          while each edge represents a connection to a neighboring location to
+          the north, south, east and west.
+        </p>
+
+        <p>
+          Before A* can run on the forest of round obstacles, we need to convert
+          it into a graph. Remember that all the paths through the forest
+          consist of alternating line segments and arc sections. The segments
+          and arcs act as edges in the graph; the endpoints of the segments and
+          arcs—and the start and goal points—become the nodes. A
+          path through this graph is a series of nodes (that is, segment or arc
+          endpoints) connected by edges (that is, segments or arcs).
+        </p>
+
+        <p>
+          [interactive diagram showing the path broken into segments and arcs with
+          common endpoints]
+        </p>
+
+        <p>
+          Both segments and arcs act as edges in the graph. We’ll call the
+          segments <em>surfing edges</em>, because the path uses them to surf between
+          obstacles. The arcs we’ll call <em>hugging edges</em>, as their purpose in
+          the path is to hug the sides of the obstacles.
+        </p>
+
+        <p>
+          Next we’ll explore a simple way to turn the obstacle forest into a
+          graph: generate all of the possible surfing and hugging edges.
+        </p>
+
+        <p>
+          [interactive diagram showing all surfing and hugging edges for a small
+          3-obstacle problem]
+        </p>
+
+        <h3 id="generating-surfing-edges">Generating surfing edges</h3>
+
+        <p>
+          The surfing edges between a pair of circles are the line segments
+          which just barely kiss both circles; these segments are known as
+          <em>bitangents</em>, and in general, there are four of them for each pair of
+          circles. The bitangents which cross between the circles are the
+          <em>internal bitangents</em>, while the ones which go along the outside are
+          the <em>external bitangents</em>.
+        </p>
+
+        <h4 id="internal-bitangents">Internal bitangents</h4>
+
+        <p>
+          Historically, internal bitangents were important for calculating the
+          length of a belt which crosses over two different sized pulleys, and
+          so the problem of constructing internal bitangents is known as the <em>belt
+          problem</em>.  To find the internal bitangents, calculate the angle θ
+          in the diagram below.
+        </p>
+
+        <svg id="belt-problem" width="600" height="300">
+          <circle id="belt-circle-1" class="draggable" :cx="A.x" :cy="A.y" :r="A.r" fill="hsl(240,10%,90%)" />
+          <circle id="belt-circle-2" class="draggable" :cx="B.x" :cy="B.y" :r="B.r" fill="hsl(240,10%,90%)" />
+          <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" />
+          <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
+          <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+          <belt-label :at="A" :opposite="B" label="A" />
+          <belt-label :at="B" :opposite="A" label="B" />
+          <template v-if="non_overlapping">
+            <line class="dashed" :x1="A.x" :y1="A.y" :x2="C.x" :y2="C.y" />
+            <line class="dashed" :x1="A.x" :y1="A.y" :x2="D.x" :y2="D.y" />
+            <line class="dashed" :x1="B.x" :y1="B.y" :x2="E.x" :y2="E.y" />
+            <line class="dashed" :x1="B.x" :y1="B.y" :x2="F.x" :y2="F.y" />
+            <line class="graph-edge" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" />
+            <line class="graph-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" />
+            <circle class="graph-node" :cx="C.x" :cy="C.y" r="5" />
+            <circle class="graph-node" :cx="D.x" :cy="D.y" r="5" />
+            <circle class="graph-node" :cx="E.x" :cy="E.y" r="5" />
+            <circle class="graph-node" :cx="F.x" :cy="F.y" r="5" />
+            <belt-label :at="C" :opposite="A" label="C" />
+            <belt-label :at="D" :opposite="A" label="D" />
+            <belt-label :at="E" :opposite="B" label="E" />
+            <belt-label :at="F" :opposite="B" label="F" />
+            <belt-label :at="theta_AC" :opposite="A" label="θ" />
+            <belt-label :at="theta_AD" :opposite="A" label="θ" />
+            <belt-label :at="theta_BE" :opposite="B" label="θ" />
+            <belt-label :at="theta_BF" :opposite="B" label="θ" />
+          </template>
+          <template v-else="">
+            <text x="300" y="15">Overlapping circles have no bitangents</text>
+          </template>
+        </svg>
+
+        <p>
+          It turns out that, given circles A and B with radius r1 and r2, and
+          centers separated by distance P, theta = acos((r1 + r2) / P). Note
+          that when the two circles overlap, (r1 + r2) is greater than P, and
+          thus the ratio is greater than one. Arccosine is not defined for
+          values outside the range [-1..1], and there are no internal bitangents
+          between overlapping circles.
+        </p>
+
+        <h4 id="external-bitangents">External bitangents</h4>
+
+        <p>
+          Constructing external bitangents—the <em>pulley problem</em>—uses a
+          similar technique.
+        </p>
+
+        <svg id="pulley-problem" width="600" height="300">
+          <circle id="pulley-circle-1" class="draggable" :cx="A.x" :cy="A.y" :r="A.r" fill="hsl(240,10%,90%)" />
+          <circle id="pulley-circle-2" class="draggable" :cx="B.x" :cy="B.y" :r="B.r" fill="hsl(240,10%,90%)" />
+          <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" />
+          <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
+          <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+          <belt-label :at="A" :opposite="B" label="A" />
+          <belt-label :at="B" :opposite="A" label="B" />
+          <template v-if="non_containing">
+            <line class="dashed" :x1="A.x" :y1="A.y" :x2="C.x" :y2="C.y" />
+            <line class="dashed" :x1="A.x" :y1="A.y" :x2="D.x" :y2="D.y" />
+            <line class="dashed" :x1="B.x" :y1="B.y" :x2="E.x" :y2="E.y" />
+            <line class="dashed" :x1="B.x" :y1="B.y" :x2="F.x" :y2="F.y" />
+            <line class="graph-edge" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" />
+            <line class="graph-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" />
+            <circle class="graph-node" :cx="C.x" :cy="C.y" r="5" />
+            <circle class="graph-node" :cx="D.x" :cy="D.y" r="5" />
+            <circle class="graph-node" :cx="E.x" :cy="E.y" r="5" />
+            <circle class="graph-node" :cx="F.x" :cy="F.y" r="5" />
+            <belt-label :at="C" :opposite="A" label="C" />
+            <belt-label :at="D" :opposite="A" label="D" />
+            <belt-label :at="E" :opposite="B" label="E" />
+            <belt-label :at="F" :opposite="B" label="F" />
+            <belt-label :at="theta_AC" :opposite="A" label="θ" />
+            <belt-label :at="theta_AD" :opposite="A" label="θ" />
+            <belt-label :at="theta_BE" :opposite="B" label="θ" />
+            <belt-label :at="theta_BF" :opposite="B" label="θ" />
+          </template>
+          <template v-else="">
+            <text x="300" y="15">Smaller circle entirely contained in larger one</text>
+          </template>
+        </svg>
+
+        <p>
+          For external bitangents, θ = acos((r1 - r2) / P). It doesn’t
+          matter whether circle A or B is bigger, but as shown in the diagram,
+          θ appears on the side of A toward B, but on the side of B away
+          from A. If the difference in size of the two circles is greater than
+          the separation of the centers, acos((r1 - r2) / P) is undefined. This
+          corresponds to the case where one circle is completely inside the
+          other, for which there are no external bitangents.
+        </p>
+
+        <h4 id="line-of-sight">Line of sight</h4>
+
+        <p>
+          Taken together, the internal and external bitangents between two
+          circles constitute surfing edges between the circles. But what if a
+          third circle blocks one or more of the surfing edges?
+        </p>
+
+        <p>
+          [Diagram with two fixed circles with bitangents drawn between them. A
+          third circle can be moved so that it blocks some of the bitangents,
+          graying them out.]
+        </p>
+
+        <p>
+          If a surfing edge is blocked by another circle, we need to throw the
+          edge out.  To detect this case, we use a simple <em>point-line-distance</em>
+          calculation. If the distance from the surfing edge to the obstacle’s
+          center is less than the obstacle’s radius, then the obstacle blocks
+          the surfing edge, and we should throw the edge away.
+        </p>
+
+        <p>
+          To calculate the distance from a point to a line segment, use the following
+          formula (from http://paulbourke.net/geometry/pointlineplane/):
+        </p>
+
+        <pre>
+float pointLineDeterminant(const FPoint &amp;p, const FPoint &amp;A, const FPoint &amp;B) {
+  return ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y)) /
+	 ((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y));
+}
+		 
+float sqDist(const FPoint &amp;p1, const FPoint &amp;p2) { return (p2 - p1).sqmag(); }
+
+float pointLineSqDist(const FPoint &amp;p, const FPoint &amp;A, const FPoint &amp;B) {
+  const auto u = pointLineDeterminant(p, A, B);
+  if (u &lt; 0) return sqDist(p, A);
+  if (u &gt; 1) return sqDist(p, B);
+  return (A + u * (B - A) - p).sqmag();
+}
+        </pre>
+
+        <h3 id="generating-hugging-edges">Generating hugging edges</h3>
+
+        <p>
+          Each hugging edge starts at the endpoint of a surfing edge, traverses
+          around the circle, and terminates at the endpoint of a different
+          surfing edge.
+        </p>
+
+        <svg id="hugging-edge" width="600" height="300">
+          <template v-if="valid">
+            <line :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" fill="none" stroke="black" />
+            <line :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" fill="none" stroke="black" />
+          </template>
+          <circle id="hugging-edge-left" class="draggable" :cx="A.x" :cy="A.y" r="10" fill="hsl(240,10%,90%)" />
+          <circle id="hugging-edge-right" class="draggable" :cx="E.x" :cy="E.y" r="10" fill="hsl(240,10%,90%)" />
+          <circle id="hugging-edge-circle" class="draggable" :cx="C.x" :cy="C.y" :r="C.r" fill="hsl(240,10%,90%)" />
+          <template v-if="valid">
+            <line class="dashed" :x1="C.x" :y1="C.y" :x2="B.x" :y2="B.y" />
+            <line class="dashed" :x1="C.x" :y1="C.y" :x2="D.x" :y2="D.y" />
+            <belt-label :at="C" :opposite="mid_BD" label="C" />
+            <belt-label :at="B" :opposite="C" label="B" />
+            <belt-label :at="D" :opposite="C" label="D" />
+          </template>
+          <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
+          <template v-if="valid">
+            <path class="graph-edge" :d="arc_path" />
+            <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
+            <circle class="graph-node" :cx="D.x" :cy="D.y" r="5" />
+          </template>
+        </svg>
+
+        <p>
+          [TODO: diagram doesn’t work when angle &gt;180°]
+        </p>
+
+        <p>
+          [TODO: is left/right an optimization we can leave for later, or do we need a diagram to show it now?]
+        </p>
+
+        <p>
+          Hugging edges connect surfing edges which touch the same circle, but
+          not every pair of surfing edges which touch a circle can be connected
+          by a hugging edge. Each surfing edge touching a circle can be
+          classified into one of two types: <em>left</em> edges and <em>right</em>
+          edges. Viewed from the endpoint which is not touching the circle, left
+          surfing edges intersect the left side of the circle, while right edges
+          touch the circle on the right side. Every hugging edge connects a left
+          surfing edge and a right surfing edge; if one were to traverse the
+          hugging edge from the left surfing edge to the right surfing edge,
+          travel around the circle would be clockwise.
+        </p>
+
+        <p>
+          [Interactive diagram: three draggable circles with all bitangents
+          drawn, with each bitangent endpoint drawn red or blue depending on
+          whether they are left or right edges on that circle.]
+        </p>
+
+        <p>
+          To find the set of hugging edges for a circle, first collect all the
+          surfing edge endpoints on the circle. Then for each left surfing edge
+          endpoint, generate a hugging edge to each right surfing edge endpoint,
+          traversing the circle clockwise. Because the graph is undirected, each
+          of these hugging edges implies the existence of another hugging edge
+          which starts at a right edge, traverses around the circle
+          anticlockwise, and terminates on a left edge.
+        </p>
+
+        <h4 id="line-of-sight-1">Line of sight</h4>
+
+        <p>
+          Hugging edges can be blocked by obstacles just as surfing edges
+          can. Consider the hugging edge in the diagram below. If another
+          obstacle touches the hugging edge, it’s blocked and should be thrown
+          out.
+        </p>
+
+        <p>
+          [Diagram with a fixed hugging edge between two points on the circle. A
+          second circle can be dragged; if it touches the hugging edge, the edge
+          gets grayed out.]
+        </p>
+
+        <p>
+          To determine whether a hugging edge is blocked by another obstacle,
+          determine the points at which to two circles intersect.
+        </p>
+
+        <pre>
+// http://paulbourke.net/geometry/circlesphere/
+// returns bearings to intersections of c0 &amp; c1, as seen from c0.center
+void getIntersectionAnglesOnC0(const Circle &amp;c0, const Circle &amp;c1,
+                               std::vector&lt;double&gt; *intersections) {
+  const auto d = dist(c0.center, c1.center);
+  if (d &gt; c0.radius + c1.radius) return;            // not touching
+  if (d &lt; std::abs(c0.radius - c1.radius)) return;  // subsumed
+  if (d == 0 &amp;&amp; c0.center == c1.center) return;     // coincident
+
+  // a is dist from c0 to closest point on "radical line" which connects the two
+  // intersection points
+  // a = (r0^2 - r1^2 + d^2 ) / (2 d)
+  const auto a =
+      (c0.radius * c0.radius - c1.radius * c1.radius + d * d) / (2 * d);
+
+  // my shortcut here, we just want the bearings not the points
+  const auto theta = std::acos(a / c0.radius);
+  const auto bearing = bearingFrom(c0.center, c1.center);
+  intersections-&gt;push_back(bearing + theta);
+  if (theta != 0) intersections-&gt;push_back(bearing - theta);
+}
+        </pre>
+
+        <p>
+          [Diagram with two draggable circles, showing points of intersection.]
+        </p>
+
+        <p>
+          Next, determine whether either of the intersection points fall between
+          the start and end points of the hugging edge. If this is the case,
+          then the obstacle blocks the hugging edge, and we should discard the
+          edge.  Note that we don’t have to worry about the case where the
+          hugging edge is entirely contained within an obstacle, as the line of
+          sight culling for surfing edges will have already thrown the edge out.
+        </p>
+
+        <h3 id="nodes">Nodes</h3>
+
+        <p>
+          Other that the start and end points, the graph’s nodes are the
+          endpoints of hugging edges.  Some hugging edges may share endpoints,
+          and these can be coalesced into single nodes. This should happen only
+          if the shared endpoint is on the same end of the hugging edge. The
+          left endpoint of a hugging edge shouldn’t coalesce with the right
+          endpoint of another hugging edge.
+        </p>
+
+        <h2 id="putting-it-all-together">Putting it all together</h2>
+
+        <p>
+          Given Minkowski expansion of obstacles, the generation of surfing and
+          hugging edges, and the culling of blocked edges, we can run
+          pathfinding using the A* algorithm.
+        </p>
+
+        <p>
+          [Diagram: full demo]
+        </p>
+
+        <h2 id="enhancements">Enhancements</h2>
+
+        <p>
+          We could just eliminate this section for the first version.
+        </p>
+
+        <h3 id="delayed-edge-generation">Delayed edge generation</h3>
+
+        <p>
+          In the pathfinding demo show which edges were even looked at. If these
+          things are moving around, we can delay generating that graph by moving
+          the edge generation to the neighbors() function
+        </p>
+
+        <h3 id="cull-longer-paths-to-same-place">Cull longer paths to same place</h3>
+
+        <p>
+          Before putting new paths into the priority queue, see if we’ve been to
+          this spot going the same direction for a cheaper cost already.
+        </p>
+
+        <h3 id="crossing-edge-culling">Crossing edge culling</h3>
+
+        <p>
+          Cull partial paths whose final surfing edge crosses the penultimate
+          surfing edge.
+        </p>
+
+        <h3 id="polygonal-obstacles">Polygonal obstacles</h3>
+
+        <p>
+          exercise for the reader
+        </p>
+
+        <h3 id="spatial-index">Spatial index</h3>
+
+        <h2 id="full-demo">Full demo</h2>
+
+        <h2 id="references">References</h2>
+
+        <ul>
+          <li>Belt problem</li>
+          <li>Pulley problem</li>
+          <li>Point line distance</li>
+          <li>Intersection of two circles</li>
+        </ul>
+        
+      </div>
+    </section>
+
+    <footer>
+      <svg width="0" height="0">
+        <defs>
+          <filter id="drop-shadow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+            <feOffset dx="0" dy="1" result="offsetblur" />
+            <feFlood flood-color="#000000" />
+            <feComposite in2="offsetblur" operator="in" />
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+      
+      <script src="https://unpkg.com/vue"></script>
+      <script src="draggable.js"></script>
+      <script src="belt-problem.js"></script>
+      
+      <div>
+        <p class="copyright">Copyright 2017 by <a href="https://github.com/redblobgames">redblobgames</a> and <a href="https://github.com/shillingsburg">shillingsburg</a>
+        </p>
+      </div>
+    </footer>
+
+  </body>
+</html>
