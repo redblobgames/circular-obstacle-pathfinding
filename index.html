@@ -5,6 +5,10 @@
     <link rel="stylesheet" type="text/css" media="screen" href="style.css"/>
     <title>Circular Obstacle Pathfinding</title>
     <meta name="description" content="Pathfinding around a set of circular obstacles"/>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>    
   </head>
 
   <body>
@@ -179,7 +183,7 @@
           Historically, internal bitangents were important for calculating the
           length of a belt which crosses over two different sized pulleys, and
           so the problem of constructing internal bitangents is known as the <em>belt
-          problem</em>.  To find the internal bitangents, calculate the angle θ
+          problem</em>.  To find the internal bitangents, calculate the angle \(\theta\)
           in the diagram below.
         </p>
 
@@ -217,11 +221,11 @@
         </svg>
 
         <p>
-          It turns out that, given circles A and B with radius r1 and r2, and
-          centers separated by distance P, theta = acos((r1 + r2) / P). Note
-          that when the two circles overlap, (r1 + r2) is greater than P, and
+          It turns out that, given circles A and B with radius \(r1\) and \(r2\), and
+          centers separated by distance \(P\), \(\theta = \arccos{{r_1+r_2}\over{P}}\). Note
+          that when the two circles overlap, \((r1 + r2) \ge P\), and
           thus the ratio is greater than one. Arccosine is not defined for
-          values outside the range [-1..1], and there are no internal bitangents
+          values outside the range \([-1, 1]\), and there are no internal bitangents
           between overlapping circles.
         </p>
 
@@ -266,16 +270,16 @@
         </svg>
 
         <p>
-          For external bitangents, θ = acos((r1 - r2) / P). It doesn’t
+          For external bitangents, \(\theta = \arccos{{r1 - r2} \over P}\). It doesn’t
           matter whether circle A or B is bigger, but as shown in the diagram,
-          θ appears on the side of A toward B, but on the side of B away
+          \(\theta\) appears on the side of A toward B, but on the side of B away
           from A. If the difference in size of the two circles is greater than
-          the separation of the centers, acos((r1 - r2) / P) is undefined. This
+          the separation of the centers, \(\arccos{{r1 - r2} \over P}\) is undefined. This
           corresponds to the case where one circle is completely inside the
           other, for which there are no external bitangents.
         </p>
 
-        <h4 id="line-of-sight">Line of sight</h4>
+        <h4 id="surfing-line-of-sight">Line of sight</h4>
 
         <p>
           Taken together, the internal and external bitangents between two
@@ -284,9 +288,7 @@
         </p>
 
         <p>
-          [Diagram with two fixed circles with bitangents drawn between them. A
-          third circle can be moved so that it blocks some of the bitangents,
-          graying them out.]
+          [Diagram with a surfing edge and a circle that blocks it. Circle can be moved]
         </p>
 
         <p>
@@ -299,7 +301,7 @@
 
         <p>
           To calculate the distance from a point to a line segment, use the following
-          formula (from http://paulbourke.net/geometry/pointlineplane/):
+          formula (from <a href="http://paulbourke.net/geometry/pointlineplane/">Paul Bourke</a>):
         </p>
 
         <pre>
@@ -386,7 +388,7 @@ float pointLineSqDist(const FPoint &amp;p, const FPoint &amp;A, const FPoint &am
           anticlockwise, and terminates on a left edge.
         </p>
 
-        <h4 id="line-of-sight-1">Line of sight</h4>
+        <h4 id="hugging-line-of-sight">Line of sight</h4>
 
         <p>
           Hugging edges can be blocked by obstacles just as surfing edges
@@ -531,7 +533,10 @@ void getIntersectionAnglesOnC0(const Circle &amp;c0, const Circle &amp;c1,
           </filter>
         </defs>
       </svg>
-      
+
+      <script>
+        renderMathInElement(document.body);
+      </script>
       <script src="https://unpkg.com/vue"></script>
       <script src="draggable.js"></script>
       <script src="belt-problem.js"></script>
