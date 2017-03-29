@@ -418,33 +418,34 @@ the Pythagorean distance formula.
         </p>
 
         <p>
-          To determine whether a hugging edge is blocked by another obstacle,
-          determine the points at which to two circles intersect.
+          To determine whether a hugging edge is blocked by another
+          obstacle, first determine the points at which the two
+          circles intersect.  Given circles \((c_1,r_1)\) and
+          \((c_2,r_2)\), where \(d\) is the distance between \(c_1\)
+          and \(c_2\), there are a few cases to check for first. If
+          the circles are not touching (\(d > r_1 + r_2)\), if one
+          circle is inside the other (\(d < |r_1 - r_2|)\), or the
+          circles are coincident (\(d = 0\) and \(r_1 = r_2\)), then
+          the circles cannot interfere with each others' hugging
+          edges.
         </p>
+<p>
+If none of these cases hold, then the circles intersect at two
+points&mdash;if the circles are tangent to each other, these two
+points are coincident. Consider the <em>radical line</em> which
+connects the intersection points; it's perpendicular to the line
+connecting \(c_1\) and \(c_2\) at some point \(q\). We can calculate the
+distance \(a\) from \(c_1\) to \(q\) as follows:
+</p>
+<p>
+\(a = {r_1^2 - r_2^2 + d^2 \over 2d } \)
+</p>
+<p>
+Having found \(a\), we can find the angle \(\phi = \arccos {a \over c_1} \). If \(\phi\) is
+zero, the circles are tangent. Otherwise, there are two intersection points corresponding
+to positive and negative \(\phi\).
+</p>
 
-        <pre>
-// http://paulbourke.net/geometry/circlesphere/
-// returns bearings to intersections of c0 &amp; c1, as seen from c0.center
-void getIntersectionAnglesOnC0(const Circle &amp;c0, const Circle &amp;c1,
-                               std::vector&lt;double&gt; *intersections) {
-  const auto d = dist(c0.center, c1.center);
-  if (d &gt; c0.radius + c1.radius) return;            // not touching
-  if (d &lt; std::abs(c0.radius - c1.radius)) return;  // subsumed
-  if (d == 0 &amp;&amp; c0.center == c1.center) return;     // coincident
-
-  // a is dist from c0 to closest point on "radical line" which connects the two
-  // intersection points
-  // a = (r0^2 - r1^2 + d^2 ) / (2 d)
-  const auto a =
-      (c0.radius * c0.radius - c1.radius * c1.radius + d * d) / (2 * d);
-
-  // my shortcut here, we just want the bearings not the points
-  const auto theta = std::acos(a / c0.radius);
-  const auto bearing = bearingFrom(c0.center, c1.center);
-  intersections-&gt;push_back(bearing + theta);
-  if (theta != 0) intersections-&gt;push_back(bearing - theta);
-}
-        </pre>
 
         <p>
           [Diagram with two draggable circles, showing points of intersection.]
