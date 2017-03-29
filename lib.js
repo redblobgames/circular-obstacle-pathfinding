@@ -10,6 +10,10 @@ function vec_add(p, q) {
     return {x: p.x + q.x, y: p.y + q.y};
 }
 
+function vec_sub(p, q) {
+    return {x: p.x - q.x, y: p.y - q.y};
+}
+    
 function vec_interpolate(p, q, t) {
     return {x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t};
 }

@@ -188,8 +188,8 @@
         </p>
 
         <svg id="belt-problem" width="600" height="300">
-          <a-draggable :model="A"><circle :r="A.r" fill="hsl(240,10%,90%)" /></a-draggable>
-          <a-draggable :model="B"><circle :r="B.r" fill="hsl(240,10%,90%)" /></a-draggable>
+          <a-draggable :model="A"><circle :r="A.r"/></a-draggable>
+          <a-draggable :model="B"><circle :r="B.r"/></a-draggable>
           <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" />
           <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
           <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
@@ -237,8 +237,8 @@
         </p>
 
         <svg id="pulley-problem" width="600" height="300">
-          <a-draggable :model="A"><circle :r="A.r" fill="hsl(240,10%,90%)" /></a-draggable>
-          <a-draggable :model="B"><circle :r="B.r" fill="hsl(240,10%,90%)" /></a-draggable>
+          <a-draggable :model="A"><circle :r="A.r"/></a-draggable>
+          <a-draggable :model="B"><circle :r="B.r"/></a-draggable>
           <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" />
           <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
           <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
@@ -287,10 +287,25 @@
           third circle blocks one or more of the surfing edges?
         </p>
 
-        <p>
-          [Diagram with a surfing edge and a circle that blocks it. Circle can be moved]
-        </p>
-
+        <svg id="surfing-line-of-sight-diagram" width="600" height="300">
+          <line class="graph-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y"/>
+          <line class="dashed" :x1="C.x" :y1="C.y" :x2="D.x" :y2="D.y"/>
+          <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
+          <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
+          <circle :cx="C.x" :cy="C.y" r="3" fill="black"/>
+          <circle :cx="D.x" :cy="D.y" r="3" fill="black"/>
+          <a-label :at="A" :opposite="B" label="A"/>
+          <a-label :at="B" :opposite="A" label="B"/>
+          <a-draggable :model="C"><circle :r="C.r" fill-opacity="0.5"/></a-draggable>
+          <a-label :at="C" :opposite="D" label="C"/>
+          <a-label :at="D" :opposite="C" label="D"/>
+          <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" :stroke="circle_blocks_los? 'hsl(0,50%,50%)' : 'black'"/>
+          <text x="300" y="250">
+            <template v-if="circle_blocks_los">Circle blocks line of sight</template>
+            <template v-else>A and B visible from each other</template>
+          </text>
+        </svg>
+        
         <p>
           If a surfing edge is blocked by another circle, we need to throw the
           edge out.  To detect this case, we use a simple <em>point-line-distance</em>
@@ -300,40 +315,46 @@
         </p>
 
         <p>
-          To calculate the distance from point \(p\) to line segment \(\overline{AB}\),
+          To calculate the distance from point \(C\) to line segment \(\overline{AB}\),
           use the following method
           (from <a href="http://paulbourke.net/geometry/pointlineplane/">Paul
           Bourke</a>):
         </p>
-<p>
-First, compute the determinant \(u\), which is the fraction of the
-distance along segment \(\overline{AB}\) at which a perpendicular
-ascender hits point \(p\).
-</p>
-<p>
- \(u = {{(x_p - x_A) * (x_B - x_A) + (y_p - y_A) * (y_B - y_A)} \over
-                              {(x_B - x_A) * (x_B - x_A) + (y_B - y_A) * (y_B - y_A)}} \)
-
-
-        </p>
-<p>
-If \(u\) is between 0 and 1, then \(p\) is closest to segment
-\(\overline{AB}\) at some point between \(A\) and \(B\). In this case the distance \(d\) is given by
-</p>
-
+        
         <p>
-\(d = \|(A + u * (B - A) - p)\|\)
-</p>
-<p>
-If \(u\) is less than zero, then the closest point to \(p\) on segment
-\(\overline{AB}\) is \(A\). Likewise, if \(u\) is greater than one,
-\(p\) is closer to \(B\) than to any other point on segment
-\(\overline{AB}\). In both of these cases, the distance is given by
-the Pythagorean distance formula.
-</p>
-<p>
-\(d = \|A - p\|\) or \(d = \|B - p\|\)
-</p>
+          First, compute the determinant \(u\), which is the fraction of the
+          distance along segment \(\overline{AB}\) at which a perpendicular
+          ascender hits point \(C\).
+        </p>
+        
+        <p>
+          \(u = {{(x_C - x_A) * (x_B - x_A) + (y_C - y_A) * (y_B - y_A)} \over
+          {(x_B - x_A) * (x_B - x_A) + (y_B - y_A) * (y_B - y_A)}} \)
+        </p>
+        
+        <p>
+          If \(u\) is between 0 and 1, then \(C\) is closest to segment
+          \(\overline{AB}\) at some point between \(A\) and \(B\). In this case the distance \(d\) is given by
+        </p>
+        
+        <p>
+          \(d = \|(A + u * (B - A) - C)\|\)
+        </p>
+        
+        <p>
+          If \(u\) is less than zero, then the closest point to \(C\) on segment
+          \(\overline{AB}\) is \(A\). Likewise, if \(u\) is greater than one,
+          \(C\) is closer to \(B\) than to any other point on segment
+          \(\overline{AB}\). In both of these cases, the distance is given by
+          the Pythagorean distance formula.
+        </p>
+        
+        <p>
+          \(d = \|A - C\|\) or \(d = \|B - C\|\)
+        </p>
+
+        [Amit's TODO: simplify this by clamping \(0 \le u \le 1\), calculating point D = interpolate(A, B, u), then d = distance(C, D)]
+        
         <h3 id="generating-hugging-edges">Generating hugging edges</h3>
 
         <p>
@@ -429,22 +450,22 @@ the Pythagorean distance formula.
           the circles cannot interfere with each others' hugging
           edges.
         </p>
-<p>
-If none of these cases hold, then the circles intersect at two
-points&mdash;if the circles are tangent to each other, these two
-points are coincident. Consider the <em>radical line</em> which
-connects the intersection points; it's perpendicular to the line
-connecting \(c_1\) and \(c_2\) at some point \(q\). We can calculate the
-distance \(a\) from \(c_1\) to \(q\) as follows:
-</p>
-<p>
-\(a = {r_1^2 - r_2^2 + d^2 \over 2d } \)
-</p>
-<p>
-Having found \(a\), we can find the angle \(\phi = \arccos {a \over c_1} \). If \(\phi\) is
-zero, the circles are tangent. Otherwise, there are two intersection points corresponding
-to positive and negative \(\phi\).
-</p>
+        <p>
+          If none of these cases hold, then the circles intersect at two
+          points&mdash;if the circles are tangent to each other, these two
+          points are coincident. Consider the <em>radical line</em> which
+          connects the intersection points; it's perpendicular to the line
+          connecting \(c_1\) and \(c_2\) at some point \(q\). We can calculate the
+          distance \(a\) from \(c_1\) to \(q\) as follows:
+        </p>
+        <p>
+          \(a = {r_1^2 - r_2^2 + d^2 \over 2d } \)
+        </p>
+        <p>
+          Having found \(a\), we can find the angle \(\phi = \arccos {a \over c_1} \). If \(\phi\) is
+          zero, the circles are tangent. Otherwise, there are two intersection points corresponding
+          to positive and negative \(\phi\).
+        </p>
 
 
         <p>

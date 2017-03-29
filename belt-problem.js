@@ -121,3 +121,30 @@ let hugging_edge = new Vue({
         }
     }
 });
+
+
+let surfing_line_of_sight = new Vue({
+    el: "#surfing-line-of-sight-diagram",
+    data: {
+        A: {x: 150, y: 150},
+        B: {x: 450, y: 150},
+        C: {x: 300, y: 100, r: 30}
+    },
+    computed: {
+        u: function() {
+            const CA = vec_sub(this.C, this.A),
+                  BA = vec_sub(this.B, this.A);
+            let u = (CA.x * BA.x + CA.y * BA.y) / (BA.x * BA.x + BA.y * BA.y);
+            if (u < 0.0) { u = 0.0; }
+            if (u > 1.0) { u = 1.0; }
+            return u;
+        },
+        D: function() {
+            return vec_interpolate(this.A, this.B, this.u);
+        },
+        circle_blocks_los: function() {
+            const distance = vec_distance(this.C, this.D);
+            return distance <= this.C.r;
+        }
+    }
+});
