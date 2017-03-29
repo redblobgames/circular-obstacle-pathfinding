@@ -206,14 +206,14 @@
             <circle class="graph-node" :cx="D.x" :cy="D.y" r="5" />
             <circle class="graph-node" :cx="E.x" :cy="E.y" r="5" />
             <circle class="graph-node" :cx="F.x" :cy="F.y" r="5" />
-            <belt-label :at="C" :opposite="A" label="C" />
-            <belt-label :at="D" :opposite="A" label="D" />
-            <belt-label :at="E" :opposite="B" label="E" />
-            <belt-label :at="F" :opposite="B" label="F" />
-            <belt-label :at="theta_AC" :opposite="A" label="θ" />
-            <belt-label :at="theta_AD" :opposite="A" label="θ" />
-            <belt-label :at="theta_BE" :opposite="B" label="θ" />
-            <belt-label :at="theta_BF" :opposite="B" label="θ" />
+            <a-label :at="C" :opposite="A" label="C" />
+            <a-label :at="D" :opposite="A" label="D" />
+            <a-label :at="E" :opposite="B" label="E" />
+            <a-label :at="F" :opposite="B" label="F" />
+            <a-label :at="theta_AC" :opposite="A" label="θ" />
+            <a-label :at="theta_AD" :opposite="A" label="θ" />
+            <a-label :at="theta_BE" :opposite="B" label="θ" />
+            <a-label :at="theta_BF" :opposite="B" label="θ" />
           </template>
           <template v-else="">
             <text x="300" y="15">Overlapping circles have no bitangents</text>
@@ -255,14 +255,14 @@
             <circle class="graph-node" :cx="D.x" :cy="D.y" r="5" />
             <circle class="graph-node" :cx="E.x" :cy="E.y" r="5" />
             <circle class="graph-node" :cx="F.x" :cy="F.y" r="5" />
-            <belt-label :at="C" :opposite="A" label="C" />
-            <belt-label :at="D" :opposite="A" label="D" />
-            <belt-label :at="E" :opposite="B" label="E" />
-            <belt-label :at="F" :opposite="B" label="F" />
-            <belt-label :at="theta_AC" :opposite="A" label="θ" />
-            <belt-label :at="theta_AD" :opposite="A" label="θ" />
-            <belt-label :at="theta_BE" :opposite="B" label="θ" />
-            <belt-label :at="theta_BF" :opposite="B" label="θ" />
+            <a-label :at="C" :opposite="A" label="C" />
+            <a-label :at="D" :opposite="A" label="D" />
+            <a-label :at="E" :opposite="B" label="E" />
+            <a-label :at="F" :opposite="B" label="F" />
+            <a-label :at="theta_AC" :opposite="A" label="θ" />
+            <a-label :at="theta_AD" :opposite="A" label="θ" />
+            <a-label :at="theta_BE" :opposite="B" label="θ" />
+            <a-label :at="theta_BF" :opposite="B" label="θ" />
           </template>
           <template v-else="">
             <text x="300" y="15">Smaller circle entirely contained in larger one</text>
