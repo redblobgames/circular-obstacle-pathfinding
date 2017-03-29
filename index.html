@@ -300,30 +300,40 @@
         </p>
 
         <p>
-          To calculate the distance from a point  to a line segment,
-          use the following formula
+          To calculate the distance from point \(p\) to line segment \(\overline{AB}\),
+          use the following method
           (from <a href="http://paulbourke.net/geometry/pointlineplane/">Paul
-          Bourke</a>): \(u = {{(p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y)} \over
-                              {(B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y)}} \)
+          Bourke</a>):
+        </p>
+<p>
+First, compute the determinant \(u\), which is the fraction of the
+distance along segment \(\overline{AB}\) at which a perpendicular
+ascender hits point \(p\).
+</p>
+<p>
+ \(u = {{(x_p - x_A) * (x_B - x_A) + (y_p - y_A) * (y_B - y_A)} \over
+                              {(x_B - x_A) * (x_B - x_A) + (y_B - y_A) * (y_B - y_A)}} \)
+
 
         </p>
+<p>
+If \(u\) is between 0 and 1, then \(p\) is closest to segment
+\(\overline{AB}\) at some point between \(A\) and \(B\). In this case the distance \(d\) is given by
+</p>
 
-        <pre>
-float pointLineDeterminant(const FPoint &amp;p, const FPoint &amp;A, const FPoint &amp;B) {
-  return ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y)) /
-	 ((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y));
-}
-		 
-float sqDist(const FPoint &amp;p1, const FPoint &amp;p2) { return (p2 - p1).sqmag(); }
-
-float pointLineSqDist(const FPoint &amp;p, const FPoint &amp;A, const FPoint &amp;B) {
-  const auto u = pointLineDeterminant(p, A, B);
-  if (u &lt; 0) return sqDist(p, A);
-  if (u &gt; 1) return sqDist(p, B);
-  return (A + u * (B - A) - p).sqmag();
-}
-        </pre>
-
+        <p>
+\(d = \|(A + u * (B - A) - p)\|\)
+</p>
+<p>
+If \(u\) is less than zero, then the closest point to \(p\) on segment
+\(\overline{AB}\) is \(A\). Likewise, if \(u\) is greater than one,
+\(p\) is closer to \(B\) than to any other point on segment
+\(\overline{AB}\). In both of these cases, the distance is given by
+the Pythagorean distance formula.
+</p>
+<p>
+\(d = \|A - p\|\) or \(d = \|B - p\|\)
+</p>
         <h3 id="generating-hugging-edges">Generating hugging edges</h3>
 
         <p>
