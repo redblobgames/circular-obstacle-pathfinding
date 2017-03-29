@@ -1,6 +1,6 @@
 /* Diagrams */
 
-svg { pointer-events: none; }
+svg { pointer-events: none; -ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none; }
 text { text-anchor: middle; }
 line { fill: none; stroke: black; }
 .dashed { stroke-dasharray: 4,3; }

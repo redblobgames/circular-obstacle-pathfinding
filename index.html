@@ -188,13 +188,13 @@
         </p>
 
         <svg id="belt-problem" width="600" height="300">
-          <circle id="belt-circle-1" class="draggable" :cx="A.x" :cy="A.y" :r="A.r" fill="hsl(240,10%,90%)" />
-          <circle id="belt-circle-2" class="draggable" :cx="B.x" :cy="B.y" :r="B.r" fill="hsl(240,10%,90%)" />
+          <a-draggable :model="A"><circle :r="A.r" fill="hsl(240,10%,90%)" /></a-draggable>
+          <a-draggable :model="B"><circle :r="B.r" fill="hsl(240,10%,90%)" /></a-draggable>
           <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" />
           <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
           <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
-          <belt-label :at="A" :opposite="B" label="A" />
-          <belt-label :at="B" :opposite="A" label="B" />
+          <a-label :at="A" :opposite="B" label="A" />
+          <a-label :at="B" :opposite="A" label="B" />
           <template v-if="non_overlapping">
             <line class="dashed" :x1="A.x" :y1="A.y" :x2="C.x" :y2="C.y" />
             <line class="dashed" :x1="A.x" :y1="A.y" :x2="D.x" :y2="D.y" />
@@ -237,13 +237,13 @@
         </p>
 
         <svg id="pulley-problem" width="600" height="300">
-          <circle id="pulley-circle-1" class="draggable" :cx="A.x" :cy="A.y" :r="A.r" fill="hsl(240,10%,90%)" />
-          <circle id="pulley-circle-2" class="draggable" :cx="B.x" :cy="B.y" :r="B.r" fill="hsl(240,10%,90%)" />
+          <a-draggable :model="A"><circle :r="A.r" fill="hsl(240,10%,90%)" /></a-draggable>
+          <a-draggable :model="B"><circle :r="B.r" fill="hsl(240,10%,90%)" /></a-draggable>
           <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" />
           <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
           <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
-          <belt-label :at="A" :opposite="B" label="A" />
-          <belt-label :at="B" :opposite="A" label="B" />
+          <a-label :at="A" :opposite="B" label="A" />
+          <a-label :at="B" :opposite="A" label="B" />
           <template v-if="non_containing">
             <line class="dashed" :x1="A.x" :y1="A.y" :x2="C.x" :y2="C.y" />
             <line class="dashed" :x1="A.x" :y1="A.y" :x2="D.x" :y2="D.y" />
@@ -333,15 +333,15 @@ float pointLineSqDist(const FPoint &amp;p, const FPoint &amp;A, const FPoint &am
             <line :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" fill="none" stroke="black" />
             <line :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" fill="none" stroke="black" />
           </template>
-          <circle id="hugging-edge-left" class="draggable" :cx="A.x" :cy="A.y" r="10" fill="hsl(240,10%,90%)" />
-          <circle id="hugging-edge-right" class="draggable" :cx="E.x" :cy="E.y" r="10" fill="hsl(240,10%,90%)" />
-          <circle id="hugging-edge-circle" class="draggable" :cx="C.x" :cy="C.y" :r="C.r" fill="hsl(240,10%,90%)" />
+          <a-draggable :model="A"><circle r="10" fill="hsl(240,10%,90%)" /></a-draggable>
+          <a-draggable :model="E"><circle r="10" fill="hsl(240,10%,90%)" /></a-draggable>
+          <a-draggable :model="C"><circle :r="C.r" fill="hsl(240,10%,90%)" /></a-draggable>
           <template v-if="valid">
             <line class="dashed" :x1="C.x" :y1="C.y" :x2="B.x" :y2="B.y" />
             <line class="dashed" :x1="C.x" :y1="C.y" :x2="D.x" :y2="D.y" />
-            <belt-label :at="C" :opposite="mid_BD" label="C" />
-            <belt-label :at="B" :opposite="C" label="B" />
-            <belt-label :at="D" :opposite="C" label="D" />
+            <a-label :at="C" :opposite="mid_BD" label="C" />
+            <a-label :at="B" :opposite="C" label="B" />
+            <a-label :at="D" :opposite="C" label="D" />
           </template>
           <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
           <template v-if="valid">
@@ -538,7 +538,8 @@ void getIntersectionAnglesOnC0(const Circle &amp;c0, const Circle &amp;c1,
         renderMathInElement(document.body);
       </script>
       <script src="https://unpkg.com/vue"></script>
-      <script src="draggable.js"></script>
+      <script src="lib.js"></script>
+      <script src="components.js"></script>
       <script src="belt-problem.js"></script>
       
       <div>
