@@ -304,6 +304,14 @@
           third circle blocks one or more of the surfing edges?
         </p>
 
+        <p>
+          If a surfing edge is blocked by another circle, we need to throw the
+          edge out.  To detect this case, we use a simple <em>point-line-distance</em>
+          calculation. If the distance from the surfing edge to the obstacle’s
+          center is less than the obstacle’s radius, then the obstacle blocks
+          the surfing edge, and we should throw the edge away.
+        </p>
+
         <svg id="surfing-line-of-sight-diagram" width="600" height="300">
           <defs>
             <clipPath id="surfing-line-of-sight-clip">
@@ -330,14 +338,6 @@
         </svg>
         
         <p>
-          If a surfing edge is blocked by another circle, we need to throw the
-          edge out.  To detect this case, we use a simple <em>point-line-distance</em>
-          calculation. If the distance from the surfing edge to the obstacle’s
-          center is less than the obstacle’s radius, then the obstacle blocks
-          the surfing edge, and we should throw the edge away.
-        </p>
-
-        <p>
           To calculate the distance from point \(C\) to line segment \(\overline{AB}\),
           use the following method
           (from <a href="http://paulbourke.net/geometry/pointlineplane/">Paul
@@ -345,24 +345,40 @@
         </p>
         
         <p>
-          First, compute the determinant \(u\), which is the fraction of the
-          distance along segment \(\overline{AB}\) at which a perpendicular
-          ascender hits point \(C\).
+          First, compute \(u\), the fraction of the distance along
+          segment \(\overline{AB}\) at which a perpendicular ascender
+          hits point \(C\).
         </p>
 
-        
+<p>
+\( u = {(C - A) \cdot (B-A) \over (B-A)\cdot(B-A)}  \)
+</p>
+    
+<p>
+or equivalently:
+</p>
+    
         <p>
           \(u = {{(x_C - x_A) * (x_B - x_A) + (y_C - y_A) * (y_B - y_A)} \over
           {(x_B - x_A) * (x_B - x_A) + (y_B - y_A) * (y_B - y_A)}} \)
         </p>
 
-        [ Amit asks: is the dot product version ((C-A)\dot(B-A)) / (B-A)\dot(B-A) easier or harder for readers to understand ? ]
-        
-        <p>
-	  
+<p>
+If \(u\) is outside the range of \([0,1]\), then the perpendicular
+strikes the \(\overline{AB}\) line somewhere outside the
+\(\overline{AB}\) segment. By clamping \(u\) inside \([0,1]\), we can
+find point \(D\), the closest point to \(C\) on the \(\overline{AB}\)
+segment:
+</p>
 
-          The closest point \(D = A + clamp(u, 0, 1) * (B - A)\). The distance \(d = \|D - C\|\).
-        </p>
+<p>
+          \(D = A + clamp(u, 0, 1) * (B - A)\)
+</p>
+
+<p>
+Thus, the distance from \(C\) to segment \(\overline{AB}\) is the distance from \(C\) to \(D\): \(d = \|D - C\|\).
+</p>
+
 
         <h3 id="generating-hugging-edges">Generating hugging edges</h3>
 
