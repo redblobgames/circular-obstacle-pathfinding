@@ -227,12 +227,15 @@
         </svg>
 
         <p>
-          It turns out that, given circles A and B with radius \(r1\) and \(r2\), and
-          centers separated by distance \(P\), \(\theta = \arccos{{r_1+r_2}\over{P}}\). Note
-          that when the two circles overlap, \((r1 + r2) \ge P\), and
-          thus the ratio is greater than one. Arccosine is not defined for
-          values outside the range \([-1, 1]\), and there are no internal bitangents
-          between overlapping circles.
+          It turns out that, given circles centered on points \(A\)
+          and \(B\) with radii \(r_A\) and \(r_B\), and centers
+          separated by distance \(d\), \(\theta =
+          \arccos{{r_A+r_B}\over{d}}\). Note that when the two circles
+          overlap, there are no internal bitangents; in this case
+          \({r_A+r_B}\over d\) is greater than one. Since arccosine is
+          undefined for inputs outside its domain of \([-1, 1]\), it's
+          important to check for circle overlap before performing the
+          arccosine.
         </p>
 
         <h4 id="external-bitangents">External bitangents</h4>
@@ -282,13 +285,15 @@
         </svg>
 
         <p>
-          For external bitangents, \(\theta = \arccos{{r1 - r2} \over P}\). It doesn’t
-          matter whether circle A or B is bigger, but as shown in the diagram,
-          \(\theta\) appears on the side of A toward B, but on the side of B away
-          from A. If the difference in size of the two circles is greater than
-          the separation of the centers, \(\arccos{{r1 - r2} \over P}\) is undefined. This
-          corresponds to the case where one circle is completely inside the
-          other, for which there are no external bitangents.
+          For external bitangents, \(\theta = \arccos{{r_A - r_B}
+          \over d}\). It doesn’t matter whether circle A or B is
+          bigger, but as shown in the diagram, \(\theta\) appears on
+          the side of A toward B, but on the side of B away from A. If
+          one circle completely encloses the other, then there are no
+          external bitangents. In this case \({r_A - r_B} \over d\) is
+          outside the range \([-1, 1]\). Since arccosine is undefined
+          for such inputs, it's important to check for this case first.
+
         </p>
 
         <h4 id="surfing-line-of-sight">Line of sight</h4>
@@ -344,6 +349,7 @@
           distance along segment \(\overline{AB}\) at which a perpendicular
           ascender hits point \(C\).
         </p>
+
         
         <p>
           \(u = {{(x_C - x_A) * (x_B - x_A) + (y_C - y_A) * (y_B - y_A)} \over
@@ -353,6 +359,8 @@
         [ Amit asks: is the dot product version ((C-A)\dot(B-A)) / (B-A)\dot(B-A) easier or harder for readers to understand ? ]
         
         <p>
+	  
+
           The closest point \(D = A + clamp(u, 0, 1) * (B - A)\). The distance \(d = \|D - C\|\).
         </p>
 
@@ -441,14 +449,16 @@
 
         <p>
           To determine whether a hugging edge is blocked by another
-          obstacle, first determine the points at which the two
-          circles intersect.  Given circles \((c_1,r_1)\) and
-          \((c_2,r_2)\), where \(d\) is the distance between \(c_1\)
-          and \(c_2\), there are a few cases to check for first. If
-          the circles are not touching (\(d > r_1 + r_2)\), if one
-          circle is inside the other (\(d < |r_1 - r_2|)\), or the
-          circles are coincident (\(d = 0\) and \(r_1 = r_2\)), then
-          the circles cannot interfere with each others' hugging
+          obstacle, use the following method
+          by <a href="http://paulbourke.net/geometry/circlesphere/">Paul
+          Bourke</a> to determine the points at which the two circles
+          intersect.  Given circles centered on points \(A\) and \(B\)
+          with radii \(r_A\) and \(r_B\), where \(d\) is the distance
+          between \(A\) and \(B\), there are a few cases to check for
+          first. If the circles are not touching (\(d > r_A + r_B)\),
+          if one circle is inside the other (\(d < |r_A - r_B|)\), or
+          the circles are coincident (\(d = 0\) and \(r_A = r_B\)),
+          then the circles cannot interfere with each others' hugging
           edges.
         </p>
         <p>
@@ -456,22 +466,19 @@
           points&mdash;if the circles are tangent to each other, these two
           points are coincident. Consider the <em>radical line</em> which
           connects the intersection points; it's perpendicular to the line
-          connecting \(c_1\) and \(c_2\) at some point \(q\). We can calculate the
-          distance \(a\) from \(c_1\) to \(q\) as follows:
+          connecting \(A\) and \(B\) at some point \(C\). We can calculate the
+          distance \(a\) from \(A\) to \(C\) as follows:
         </p>
         <p>
-          \(a = {r_1^2 - r_2^2 + d^2 \over 2d } \)
+          \(a = {r_A^2 - r_B^2 + d^2 \over 2d } \)
         </p>
         <p>
-          Having found \(a\), we can find the angle \(\phi = \arccos {a \over c_1} \). If \(\phi\) is
-          zero, the circles are tangent. Otherwise, there are two intersection points corresponding
-          to positive and negative \(\phi\).
+          Having found \(a\), we can find the angle \(\theta = \arccos
+          {a \over r_1} \). If \(\theta\) is zero, the circles are
+          tangent at \(C\). Otherwise, there are two intersection
+          points corresponding to positive and negative \(\theta\).
         </p>
 
-        [TODO: you mean \(\arccos {a \over r_1}\), right?] [TODO: is
-        there significance to phi vs theta?] [TODO: rename r1,r2
-        throughout the page to r_A, r_B]
-        
         <svg id="circle-overlap" width="600" height="300">
           <a-draggable :model="A"><circle :r="A.r" /></a-draggable>
           <a-draggable :model="B"><circle :r="B.r" /></a-draggable>
