@@ -111,8 +111,10 @@ let hugging_edge = new Vue({
         B: function() { return direction_step(this.C, this.C.r, this.angle_to_A); },
         D: function() { return direction_step(this.C, this.C.r, this.angle_to_E); },
         arc_path: function() {
-            // TODO: large-arc flag
-            return `M ${this.B.x},${this.B.y} A ${this.C.r},${this.C.r} 0 0 1 ${this.D.x},${this.D.y}`;
+            let angle = this.angle_to_E - this.angle_to_A;
+            while (angle < 0) { angle += 2 * Math.PI; }
+            let large_arc = angle >= Math.PI ? 1 : 0;
+            return `M ${this.B.x},${this.B.y} A ${this.C.r},${this.C.r} 0 ${large_arc} 1 ${this.D.x},${this.D.y}`;
         }
     }
 });
