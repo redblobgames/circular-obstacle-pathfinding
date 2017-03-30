@@ -229,8 +229,9 @@
         <p>
           It turns out that, given circles centered on points \(A\)
           and \(B\) with radii \(r_A\) and \(r_B\), and centers
-          separated by distance \(d\), \(\theta =
-          \arccos{{r_A+r_B}\over{d}}\). Note that when the two circles
+          separated by distance \(d\):
+ \[\theta = \arccos{{r_A+r_B}\over{d}}\]
+ Note that when the two circles
           overlap, there are no internal bitangents; in this case
           \({r_A+r_B}\over d\) is greater than one. Since arccosine is
           undefined for inputs outside its domain of \([-1, 1]\), it's
@@ -285,14 +286,17 @@
         </svg>
 
         <p>
-          For external bitangents, \(\theta = \arccos{{r_A - r_B}
-          \over d}\). It doesn’t matter whether circle A or B is
-          bigger, but as shown in the diagram, \(\theta\) appears on
-          the side of A toward B, but on the side of B away from A. If
-          one circle completely encloses the other, then there are no
-          external bitangents. In this case \({r_A - r_B} \over d\) is
-          outside the range \([-1, 1]\). Since arccosine is undefined
-          for such inputs, it's important to check for this case first.
+          For external bitangents we can find \(\theta\) like this:
+ \[\theta = \cos^{-1}{{r_A - r_B} \over d}\]
+
+ It doesn’t matter whether circle A or B is bigger, but as shown in
+          the diagram, \(\theta\) appears on the side of A toward B,
+          but on the side of B away from A. If one circle completely
+          encloses the other, then there are no external
+          bitangents. In this case \({r_A - r_B} \over d\) is outside
+          the range \([-1, 1]\). Again, because arccosine is undefined
+          for such inputs, it's important to check for this case
+          first.
 
         </p>
 
@@ -347,36 +351,27 @@
         <p>
           First, compute \(u\), the fraction of the distance along
           segment \(\overline{AB}\) at which a perpendicular ascender
-          hits point \(C\).
+          hits point \(C\):
         </p>
 
 <p>
-\( u = {(C - A) \cdot (B-A) \over (B-A)\cdot(B-A)}  \)
-</p>
-    
-<p>
+\[ u = {(C - A) \cdot (B-A) \over (B-A)\cdot(B-A)}  \]
+
 or equivalently:
-</p>
-    
-        <p>
-          \(u = {{(x_C - x_A) * (x_B - x_A) + (y_C - y_A) * (y_B - y_A)} \over
-          {(x_B - x_A) * (x_B - x_A) + (y_B - y_A) * (y_B - y_A)}} \)
-        </p>
 
-<p>
+          \[u = {{(x_C - x_A) * (x_B - x_A) + (y_C - y_A) * (y_B - y_A)} \over
+          {(x_B - x_A) * (x_B - x_A) + (y_B - y_A) * (y_B - y_A)}} \]
+
 If \(u\) is outside the range of \([0,1]\), then the perpendicular
 strikes the \(\overline{AB}\) line somewhere outside the
 \(\overline{AB}\) segment. By clamping \(u\) inside \([0,1]\), we can
 find point \(D\), the closest point to \(C\) on the \(\overline{AB}\)
 segment:
-</p>
+          \[D = A + clamp(u, 0, 1) * (B - A)\]
 
-<p>
-          \(D = A + clamp(u, 0, 1) * (B - A)\)
-</p>
+Thus, the distance from \(C\) to segment \(\overline{AB}\) is the distance from \(C\) to \(D\):
 
-<p>
-Thus, the distance from \(C\) to segment \(\overline{AB}\) is the distance from \(C\) to \(D\): \(d = \|D - C\|\).
+ \[d = \|D - C\|\]
 </p>
 
 
@@ -484,15 +479,14 @@ Thus, the distance from \(C\) to segment \(\overline{AB}\) is the distance from 
           connects the intersection points; it's perpendicular to the line
           connecting \(A\) and \(B\) at some point \(C\). We can calculate the
           distance \(a\) from \(A\) to \(C\) as follows:
-        </p>
-        <p>
-          \(a = {r_A^2 - r_B^2 + d^2 \over 2d } \)
-        </p>
-        <p>
-          Having found \(a\), we can find the angle \(\theta = \arccos
-          {a \over r_1} \). If \(\theta\) is zero, the circles are
+
+          \[a = {r_A^2 - r_B^2 + d^2 \over 2d } \]
+
+          Having found \(a\), we can find the angle \(\theta\):
+\[\theta = \arccos {a \over r_A} \]
+ If \(\theta\) is zero, the circles are
           tangent at \(C\). Otherwise, there are two intersection
-          points corresponding to positive and negative \(\theta\).
+          points, corresponding to positive and negative \(\theta\).
         </p>
 
         <svg id="circle-overlap" width="600" height="300">
