@@ -9,43 +9,37 @@ let belt_problem = new Vue({
         B: {x: 450, y: 150, r: 50}
     },
     computed: {
-        non_overlapping: function() {
-            return !isNaN(this.theta);
-        },
+        non_overlapping: function() { return !isNaN(this.theta); },
+        AB_angle: function() { return vec_facing(this.A, this.B); },
+        BA_angle: function() { return vec_facing(this.B, this.A); },
         theta: function() {
             const P = vec_distance(this.A, this.B);
             const cos_angle = (this.A.r + this.B.r) / P;
             return Math.acos(cos_angle);
         },
-        A_to_B_angle: function() {
-            return vec_facing(this.A, this.B);
-        },
-        B_to_A_angle: function() {
-            return vec_facing(this.B, this.A);
-        },
         C: function() {
-            return vec_add(this.A, vec_polar(this.A.r, this.A_to_B_angle - this.theta));
+            return vec_add(this.A, vec_polar(this.A.r, this.AB_angle - this.theta));
         },
         D: function() {
-            return vec_add(this.A, vec_polar(this.A.r, this.A_to_B_angle + this.theta));
+            return vec_add(this.A, vec_polar(this.A.r, this.AB_angle + this.theta));
         },
         E: function() {
-            return vec_add(this.B, vec_polar(this.B.r, this.B_to_A_angle + this.theta));
+            return vec_add(this.B, vec_polar(this.B.r, this.BA_angle + this.theta));
         },
         F: function() {
-            return vec_add(this.B, vec_polar(this.B.r, this.B_to_A_angle - this.theta));
+            return vec_add(this.B, vec_polar(this.B.r, this.BA_angle - this.theta));
         },
         theta_AC: function() {
-            return vec_add(this.A, vec_polar(20, this.A_to_B_angle - this.theta/2));
+            return vec_add(this.A, vec_polar(20, this.AB_angle - this.theta/2));
         },
         theta_AD: function() {
-            return vec_add(this.A, vec_polar(20, this.A_to_B_angle + this.theta/2));
+            return vec_add(this.A, vec_polar(20, this.AB_angle + this.theta/2));
         },
         theta_BE: function() {
-            return vec_add(this.B, vec_polar(20, this.B_to_A_angle + this.theta/2));
+            return vec_add(this.B, vec_polar(20, this.BA_angle + this.theta/2));
         },
         theta_BF: function() {
-            return vec_add(this.B, vec_polar(20, this.B_to_A_angle - this.theta/2));
+            return vec_add(this.B, vec_polar(20, this.BA_angle - this.theta/2));
         }
     }
 });
@@ -66,32 +60,32 @@ let pulley_problem = new Vue({
             const cos_angle = (this.A.r - this.B.r) / P;
             return Math.acos(cos_angle);
         },
-        A_to_B_angle: function() {
+        AB_angle: function() {
             return vec_facing(this.A, this.B);
         },
         C: function() {
-            return vec_add(this.A, vec_polar(this.A.r, this.A_to_B_angle - this.theta));
+            return vec_add(this.A, vec_polar(this.A.r, this.AB_angle - this.theta));
         },
         D: function() {
-            return vec_add(this.A, vec_polar(this.A.r, this.A_to_B_angle + this.theta));
+            return vec_add(this.A, vec_polar(this.A.r, this.AB_angle + this.theta));
         },
         E: function() {
-            return vec_add(this.B, vec_polar(this.B.r, this.A_to_B_angle + this.theta));
+            return vec_add(this.B, vec_polar(this.B.r, this.AB_angle + this.theta));
         },
         F: function() {
-            return vec_add(this.B, vec_polar(this.B.r, this.A_to_B_angle - this.theta));
+            return vec_add(this.B, vec_polar(this.B.r, this.AB_angle - this.theta));
         },
         theta_AC: function() {
-            return vec_add(this.A, vec_polar(20, this.A_to_B_angle - this.theta/2));
+            return vec_add(this.A, vec_polar(20, this.AB_angle - this.theta/2));
         },
         theta_AD: function() {
-            return vec_add(this.A, vec_polar(20, this.A_to_B_angle + this.theta/2));
+            return vec_add(this.A, vec_polar(20, this.AB_angle + this.theta/2));
         },
         theta_BE: function() {
-            return vec_add(this.B, vec_polar(20, this.A_to_B_angle + this.theta/2));
+            return vec_add(this.B, vec_polar(20, this.AB_angle + this.theta/2));
         },
         theta_BF: function() {
-            return vec_add(this.B, vec_polar(20, this.A_to_B_angle - this.theta/2));
+            return vec_add(this.B, vec_polar(20, this.AB_angle - this.theta/2));
         }
     }
 });
@@ -146,5 +140,32 @@ let surfing_line_of_sight = new Vue({
             const distance = vec_distance(this.C, this.D);
             return distance <= this.C.r;
         }
+    }
+});
+
+
+let circle_overlap = new Vue({
+    el: "#circle-overlap",
+    data: {
+        A: {x: 150, y: 120, r: 100},
+        B: {x: 350, y: 180, r: 60}
+    },
+    computed: {
+        valid: function() { return !isNaN(this.theta); },
+        AB_distance: function() { return vec_distance(this.A, this.B); },
+        AB_angle: function() { return vec_facing(this.A, this.B); },
+        C: function() { return vec_interpolate(this.A, this.B, this.a / this.AB_distance); },
+        D: function() { return vec_add(this.A, vec_polar(this.A.r, this.AB_angle + this.theta)); },
+        E: function() { return vec_add(this.A, vec_polar(this.A.r, this.AB_angle - this.theta)); },
+        theta_AC: function() { return vec_add(this.A, vec_polar(20, this.AB_angle - this.theta/2)); },
+        theta_AD: function() { return vec_add(this.A, vec_polar(20, this.AB_angle + this.theta/2)); },
+        a: function() {
+            const d = this.AB_distance;
+            const Ar = this.A.r, Br = this.B.r;
+            return (Ar*Ar - Br*Br + d*d) / (2*d);
+        },
+        theta: function() {
+            return Math.acos(this.a / this.A.r);
+        },
     }
 });
