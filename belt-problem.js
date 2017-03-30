@@ -128,7 +128,7 @@ let surfing_line_of_sight = new Vue({
     data: {
         A: {x: 150, y: 150},
         B: {x: 450, y: 150},
-        C: {x: 300, y: 100, r: 30}
+        C: {x: 300, y: 90, r: 50}
     },
     computed: {
         u: function() {

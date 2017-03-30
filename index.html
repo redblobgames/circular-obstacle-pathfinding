@@ -188,10 +188,16 @@
         </p>
 
         <svg id="belt-problem" width="600" height="300">
+          <defs>
+            <clipPath id="belt-problem-clip">
+              <circle :cx="B.x" :cy="B.y" :r="B.r"/>
+            </clipPath>
+          </defs>
           <a-draggable :model="A"><circle :r="A.r"/></a-draggable>
           <a-draggable :model="B"><circle :r="B.r"/></a-draggable>
           <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" />
           <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
+          <circle :cx="A.x" :cy="A.y" :r="A.r" fill="hsl(0,20%,85%)" clip-path="url(#belt-problem-clip)" />
           <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
           <a-label :at="A" :opposite="B" label="A" />
           <a-label :at="B" :opposite="A" label="B" />
@@ -237,10 +243,16 @@
         </p>
 
         <svg id="pulley-problem" width="600" height="300">
+          <defs>
+            <clipPath id="pulley-problem-clip">
+              <circle :cx="B.x" :cy="B.y" :r="B.r"/>
+            </clipPath>
+          </defs>
           <a-draggable :model="A"><circle :r="A.r"/></a-draggable>
           <a-draggable :model="B"><circle :r="B.r"/></a-draggable>
           <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" />
           <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
+          <circle :cx="A.x" :cy="A.y" :r="A.r" :fill="non_containing?'hsl(240,25%,85%)':'hsl(0,20%,85%)'" clip-path="url(#pulley-problem-clip)" />
           <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
           <a-label :at="A" :opposite="B" label="A" />
           <a-label :at="B" :opposite="A" label="B" />
@@ -288,18 +300,24 @@
         </p>
 
         <svg id="surfing-line-of-sight-diagram" width="600" height="300">
+          <defs>
+            <clipPath id="surfing-line-of-sight-clip">
+              <circle :cx="C.x" :cy="C.y" :r="C.r"/>
+            </clipPath>
+          </defs>
           <line class="graph-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y"/>
-          <line class="dashed" :x1="C.x" :y1="C.y" :x2="D.x" :y2="D.y"/>
+          <a-draggable :model="C"><circle :r="C.r"/></a-draggable>
+          <line class="graph-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" clip-path="url(#surfing-line-of-sight-clip)" style="stroke:hsl(0,50%,50%);stroke-width:3px"/>
           <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
           <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
           <circle :cx="C.x" :cy="C.y" r="3" fill="black"/>
           <circle :cx="D.x" :cy="D.y" r="3" fill="black"/>
           <a-label :at="A" :opposite="B" label="A"/>
           <a-label :at="B" :opposite="A" label="B"/>
-          <a-draggable :model="C"><circle :r="C.r" fill-opacity="0.5"/></a-draggable>
           <a-label :at="C" :opposite="D" label="C"/>
           <a-label :at="D" :opposite="C" label="D"/>
-          <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" :stroke="circle_blocks_los? 'hsl(0,50%,50%)' : 'black'"/>
+          <line class="dashed" :x1="C.x" :y1="C.y" :x2="D.x" :y2="D.y"/>
+          <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black"/>
           <text x="300" y="250">
             <template v-if="circle_blocks_los">Circle blocks line of sight</template>
             <template v-else>A and B visible from each other</template>
@@ -331,30 +349,13 @@
           \(u = {{(x_C - x_A) * (x_B - x_A) + (y_C - y_A) * (y_B - y_A)} \over
           {(x_B - x_A) * (x_B - x_A) + (y_B - y_A) * (y_B - y_A)}} \)
         </p>
+
+        [ Amit asks: is the dot product version ((C-A)\dot(B-A)) / (B-A)\dot(B-A) easier or harder for readers to understand ? ]
         
         <p>
-          If \(u\) is between 0 and 1, then \(C\) is closest to segment
-          \(\overline{AB}\) at some point between \(A\) and \(B\). In this case the distance \(d\) is given by
-        </p>
-        
-        <p>
-          \(d = \|(A + u * (B - A) - C)\|\)
-        </p>
-        
-        <p>
-          If \(u\) is less than zero, then the closest point to \(C\) on segment
-          \(\overline{AB}\) is \(A\). Likewise, if \(u\) is greater than one,
-          \(C\) is closer to \(B\) than to any other point on segment
-          \(\overline{AB}\). In both of these cases, the distance is given by
-          the Pythagorean distance formula.
-        </p>
-        
-        <p>
-          \(d = \|A - C\|\) or \(d = \|B - C\|\)
+          The closest point \(D = A + clamp(u, 0, 1) * (B - A)\). The distance \(d = \|D - C\|\).
         </p>
 
-        [Amit's TODO: simplify this by clamping \(0 \le u \le 1\), calculating point D = interpolate(A, B, u), then d = distance(C, D)]
-        
         <h3 id="generating-hugging-edges">Generating hugging edges</h3>
 
         <p>

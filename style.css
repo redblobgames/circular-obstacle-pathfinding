@@ -8,7 +8,9 @@ line { fill: none; stroke: black; }
 .graph-edge { fill: none; stroke: hsl(120,50%,50%); stroke-width: 2px; }
 .draggable { pointer-events: visible; cursor: move; }
 .draggable:hover { filter:url(#drop-shadow); }
+.draggable:hover.dragging { filter:none; }
 .draggable circle { fill: hsl(240,10%,90%); }
+.dragging circle { fill: hsl(240,10%,88%); }
 
 /* Fonts */
 

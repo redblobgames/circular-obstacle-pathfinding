@@ -26,25 +26,32 @@ Vue.component('a-label', {
  *
  * When the svg object is dragged, it will update the x,y fields in
  * the model object, and move the <g>.
- * 
+ *
  * A Vue component version of http://www.redblobgames.com/js/draggable.js
  * specialized for dragging svg objects.
  */
 Vue.component('a-draggable', {
     props: ['model'],
     template: `
-       <g class="draggable"
+       <g :class="classList"
           :transform='"translate(" + [this.model.x, this.model.y] + ")"'
           @mousedown.left.stop.prevent="mousedown"
           @touchstart.stop.prevent="touchstart"
-          @touchmove.stop.prevent="touchmove">
+          @touchmove.stop.prevent="touchmove"
+          @touchend.stop.prevent="touchend">
           <slot/>
        </g>`,
     data: function() {
         return {
             startTouchCoords: [],
-            startTouchModel: []
+            startTouchModel: [],
+            dragging: 0
         };
+    },
+    computed: {
+        classList: function() {
+            return "draggable" + (this.dragging? " dragging" : "");
+        }
     },
     methods: {
         coords: function(e) {
@@ -67,18 +74,19 @@ Vue.component('a-draggable', {
             };
 
             const mouseup = (e) => {
+                this.dragging--;
                 window.removeEventListener('mousemove', mousemove);
                 window.removeEventListener('mouseup', mouseup);
                 e.preventDefault();
                 e.stopPropagation();
             };
 
-            // TODO: add "dragging" class to <g>; remove on mouseup
+            this.dragging++;
             window.addEventListener('mousemove', mousemove);
             window.addEventListener('mouseup', mouseup);
         },
         touchstart: function(e) {
-            // TODO: add "dragging" class to <g>; remove on touchend
+            this.dragging += e.changedTouches.length;
             for (let i = 0; i < e.changedTouches.length; i++) {
                 const touch = e.changedTouches[i], id = touch.identifier;
                 this.startTouchCoords[id] = this.coords(touch);
@@ -92,6 +100,9 @@ Vue.component('a-draggable', {
                             this.startTouchModel[id],
                             this.coords(touch));
             }
+        },
+        touchend: function(e) {
+            this.dragging -= e.changedTouches.length;
         }
     }
 });
