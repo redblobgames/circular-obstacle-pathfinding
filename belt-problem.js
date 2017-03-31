@@ -8,6 +8,18 @@ function direction_step(start, distance, angle) {
 }
 
 
+/** Intersection between segment AB and circle C */
+function segment_circle_intersection(A, B, C) {
+    const CA = vec_sub(C, A), BA = vec_sub(B, A);
+    let u = (CA.x * BA.x + CA.y * BA.y) / (BA.x * BA.x + BA.y * BA.y);
+    if (u < 0.0) { u = 0.0; }
+    if (u > 1.0) { u = 1.0; }
+
+    const D = vec_interpolate(A, B, u);
+    return { u: u, D: D, intersects: vec_distance(C, D) <= C.r };
+}
+
+    
 /** Calculations needed for internal bitangents */
 class InternalBitangents {
     constructor (A, B) {
@@ -128,16 +140,9 @@ let surfing_line_of_sight = new Vue({
         C: {x: 300, y: 90, r: 50}
     },
     computed: {
-        circle_blocks_los: function() { return vec_distance(this.C, this.D) <= this.C.r; },
-        u: function() {
-            const CA = vec_sub(this.C, this.A),
-                  BA = vec_sub(this.B, this.A);
-            let u = (CA.x * BA.x + CA.y * BA.y) / (BA.x * BA.x + BA.y * BA.y);
-            if (u < 0.0) { u = 0.0; }
-            if (u > 1.0) { u = 1.0; }
-            return u;
-        },
-        D: function() { return vec_interpolate(this.A, this.B, this.u); }
+        calculation: function() { return segment_circle_intersection(this.A, this.B, this.C); },
+        D: function() { return this.calculation.D; },
+        intersects: function() { return this.calculation.intersects; }
     }
 });
 

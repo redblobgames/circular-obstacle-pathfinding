@@ -144,11 +144,8 @@
           endpoints) connected by edges (that is, segments or arcs).
         </p>
 
-        <p>
-          [interactive diagram showing the path broken into segments and arcs with
-          common endpoints]
-        </p>
-
+        [Diagram showing the path broken into segments and arcs with common endpoints]
+        
         <p>
           Both segments and arcs act as edges in the graph. We’ll call the
           segments <em>surfing edges</em>, because the path uses them to surf between
@@ -161,10 +158,22 @@
           graph: generate all of the possible surfing and hugging edges.
         </p>
 
-        <p>
-          [interactive diagram showing all surfing and hugging edges for a small
-          3-obstacle problem]
-        </p>
+        <svg id="graph-all-edges" width="600" height="300">
+          <a-draggable v-for="(A, index) in circles"
+                       :key="index" :model="A">
+            <circle :r="A.r" />
+          </a-draggable>
+          <circle v-for="A in circles"
+                  :cx="A.x" :cy="A.y" :r="A.r"
+                  fill="none" stroke="black" class="graph-edge" />
+          <line v-for="edge in edges" class="graph-edge"
+                :x1="edge[0].x" :y1="edge[0].y"
+                :x2="edge[1].x" :y2="edge[1].y" />
+          <circle v-for="edge in edges" class="graph-node"
+                  :cx="edge[0].x" :cy="edge[0].y" r="5" />
+          <circle v-for="edge in edges" class="graph-node"
+                  :cx="edge[1].x" :cy="edge[1].y" r="5" />
+        </svg>
 
         <h3 id="generating-surfing-edges">Generating surfing edges</h3>
 
@@ -336,7 +345,7 @@
           <line class="dashed" :x1="C.x" :y1="C.y" :x2="D.x" :y2="D.y" />
           <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
           <text x="300" y="275">
-            <template v-if="circle_blocks_los">Circle blocks line of sight</template>
+            <template v-if="intersects">Circle blocks line of sight</template>
             <template v-else>A and B visible from each other</template>
           </text>
         </svg>
@@ -616,6 +625,7 @@ Thus, the distance from \(C\) to segment \(\overline{AB}\) is the distance from 
       <script src="lib.js"></script>
       <script src="components.js"></script>
       <script src="belt-problem.js"></script>
+      <script src="graph-diagrams.js"></script>
       
       <div>
         <p class="copyright">Copyright 2017 by <a href="https://github.com/redblobgames">redblobgames</a> and <a href="https://github.com/shillingsburg">shillingsburg</a>
