@@ -385,8 +385,8 @@
 
           or equivalently:
 
-          \[u = {{(x_C - x_A) * (x_B - x_A) + (y_C - y_A) * (y_B - y_A)} \over
-          {(x_B - x_A) * (x_B - x_A) + (y_B - y_A) * (y_B - y_A)}} \]
+          \[u = {{(x_C - x_A)(x_B - x_A) + (y_C - y_A)(y_B - y_A)} \over
+          {(x_B - x_A)(x_B - x_A) + (y_B - y_A)(y_B - y_A)}} \]
 
           If \(u\) is outside the range of \([0,1]\), then the perpendicular
           strikes the \(\overline{AB}\) line somewhere outside the
@@ -578,10 +578,52 @@
         <h3 id="delayed-edge-generation">Delayed edge generation</h3>
 
         <p>
-          In the pathfinding demo show which edges were even looked at. If these
-          things are moving around, we can delay generating that graph by moving
-          the edge generation to the neighbors() function
+In general, the graph for a forest of \(n\) obstacles contains
+\(O(n^2)\) surfing edges, but since each of these must be checked for
+line of sight against \(n\) obstacles, the total time to generate the
+graph is \(O(n^3)\). Additionally, pairs of surfing edges can induce
+hugging edges, and each of these must be checked against every
+obstacle for line of sight.  However, because the A* algorithm is so
+efficient, it normally looks at only a fraction of this large graph to
+produce an optimal path.
+
+<p>
+          [Diagram showing which graph edges were even looked at.]
+</p>
+<p>
+We can save time by generating small portions of the graph on the fly
+as we proceed through the A* algorithm, rather than doing all of the
+work up front. If A* finds a path quickly, we'll generate only a small
+part of the graph. We do this by moving edge generation to the
+neighbors() function.
         </p>
+
+<p>
+There are several cases. At the beginning of the algorithm, we need the
+neighbors of the start point. These are surfing edges from the start point
+to the left and right edges of each obstacle.
+</p>
+<p>
+The next case is when A* has just arrived at point \(p\) on on the
+edge of obstacle \(C\) along a surfing edge. Neighbors() needs to
+return the hugging edges leading from \(p\). To do this determine
+which surfing edges leave the obstacle by computing the bitangents
+between \(C\) and every other obstacle, throwing away any that do not
+have line of sight. Then find all the hugging edges that connect \(p\)
+to these surfing edges, discarding those that are blocked by other
+obstacles. Return all of these hugging edges, saving the surfing edges
+for return in a subsequent neighbors() call.
+</p>
+<p>
+The last case is when A* has traversed a hugging edge along obstacle
+\(C\) and needs to leave the \(C\) via a surfing edge. Because the
+previous step calculated and saved all the surfing edges, the correct
+set of edges can just be looked up and returned.
+</p>
+
+<h3>Store path tree in an array</h3>
+
+Don't store each path separately; put them in a tree stored in an array.
 
         <h3 id="cull-longer-paths-to-same-place">Cull longer paths to same place</h3>
 
