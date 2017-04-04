@@ -44,9 +44,26 @@
         </p>
 
         <p>
-          [Diagram here, with lots of obstacles, draggable start/endpoints, slider
-          for actor radius]
+          [TODO: slider for actor radius] [TODO: calculate A* on this graph]
         </p>
+
+        <svg id="graph-busy-edges" width="600" height="300">
+          <a-draggable v-for="(A, index) in circles"
+                       :key="index" :model="A">
+            <circle :r="Math.max(A.r, 5)" />
+          </a-draggable>
+          <circle v-for="A in circles"
+                  :cx="A.x" :cy="A.y" :r="A.r"
+                  fill="none" stroke="black" class="graph-edge" />
+          <line v-for="edge in edges" class="graph-edge"
+                :x1="edge[0].x" :y1="edge[0].y"
+                :x2="edge[1].x" :y2="edge[1].y"
+                style="stroke-width: 1px" />
+          <circle v-for="edge in edges" class="graph-node"
+                  :cx="edge[0].x" :cy="edge[0].y" r="3" />
+          <circle v-for="edge in edges" class="graph-node"
+                  :cx="edge[1].x" :cy="edge[1].y" r="3" />
+        </svg>
 
         <p>
           How does the same algorithm solve both problems?
@@ -161,7 +178,7 @@
         <svg id="graph-all-edges" width="600" height="300">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A">
-            <circle :r="A.r" />
+            <circle :r="Math.max(A.r, 5)" />
           </a-draggable>
           <circle v-for="A in circles"
                   :cx="A.x" :cy="A.y" :r="A.r"
@@ -239,8 +256,8 @@
           It turns out that, given circles centered on points \(A\)
           and \(B\) with radii \(r_A\) and \(r_B\), and centers
           separated by distance \(d\):
- \[\theta = \arccos{{r_A+r_B}\over{d}}\]
- Note that when the two circles
+          \[\theta = \arccos{{r_A+r_B}\over{d}}\]
+          Note that when the two circles
           overlap, there are no internal bitangents; in this case
           \({r_A+r_B}\over d\) is greater than one. Since arccosine is
           undefined for inputs outside its domain of \([-1, 1]\), it's
@@ -296,9 +313,9 @@
 
         <p>
           For external bitangents we can find \(\theta\) like this:
- \[\theta = \arccos{{r_A - r_B} \over d}\]
+          \[\theta = \arccos{{r_A - r_B} \over d}\]
 
- It doesn’t matter whether circle A or B is bigger, but as shown in
+          It doesn’t matter whether circle A or B is bigger, but as shown in
           the diagram, \(\theta\) appears on the side of A toward B,
           but on the side of B away from A. If one circle completely
           encloses the other, then there are no external
@@ -363,25 +380,25 @@
           hits point \(C\):
         </p>
 
-<p>
-\[ u = {(C - A) \cdot (B-A) \over (B-A)\cdot(B-A)}  \]
+        <p>
+          \[ u = {(C - A) \cdot (B-A) \over (B-A)\cdot(B-A)}  \]
 
-or equivalently:
+          or equivalently:
 
           \[u = {{(x_C - x_A) * (x_B - x_A) + (y_C - y_A) * (y_B - y_A)} \over
           {(x_B - x_A) * (x_B - x_A) + (y_B - y_A) * (y_B - y_A)}} \]
 
-If \(u\) is outside the range of \([0,1]\), then the perpendicular
-strikes the \(\overline{AB}\) line somewhere outside the
-\(\overline{AB}\) segment. By clamping \(u\) inside \([0,1]\), we can
-find point \(D\), the closest point to \(C\) on the \(\overline{AB}\)
-segment:
+          If \(u\) is outside the range of \([0,1]\), then the perpendicular
+          strikes the \(\overline{AB}\) line somewhere outside the
+          \(\overline{AB}\) segment. By clamping \(u\) inside \([0,1]\), we can
+          find point \(D\), the closest point to \(C\) on the \(\overline{AB}\)
+          segment:
           \[D = A + clamp(u, 0, 1) * (B - A)\]
 
-Thus, the distance from \(C\) to segment \(\overline{AB}\) is the distance from \(C\) to \(D\):
+          Thus, the distance from \(C\) to segment \(\overline{AB}\) is the distance from \(C\) to \(D\):
 
- \[d = \|D - C\|\]
-</p>
+          \[d = \|D - C\|\]
+        </p>
 
 
         <h3 id="generating-hugging-edges">Generating hugging edges</h3>
@@ -488,8 +505,8 @@ Thus, the distance from \(C\) to segment \(\overline{AB}\) is the distance from 
           \[a = {r_A^2 - r_B^2 + d^2 \over 2d } \]
 
           Having found \(a\), we can find the angle \(\theta\):
-\[\theta = \arccos {a \over r_A} \]
- If \(\theta\) is zero, the circles are
+          \[\theta = \arccos {a \over r_A} \]
+          If \(\theta\) is zero, the circles are
           tangent at \(C\). Otherwise, there are two intersection
           points, corresponding to positive and negative \(\theta\).
         </p>
