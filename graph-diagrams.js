@@ -47,7 +47,7 @@ function generate_surfing_edges(circles) {
 
 
 let graph_all_edges = new Vue({
-    el: "#graph-all-edges",
+    el: "#diagram-graph-all-edges",
     data: {
         circles: [ // sorted by r
             {x: 340, y: 200, r: 90},
@@ -62,7 +62,7 @@ let graph_all_edges = new Vue({
 
 
 let graph_busy_edges = new Vue({
-    el: "#graph-busy-edges",
+    el: "#diagram-graph-busy-edges",
     data: {
         circles: [ // sorted by r
             {x: 180, y: 100, r: 55},

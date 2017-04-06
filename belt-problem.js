@@ -63,7 +63,7 @@ class ExternalBitangents {
 
 
 let belt_problem = new Vue({
-    el: "#belt-problem",
+    el: "#diagram-belt-problem",
     data: {
         A: {x: 150, y: 150, r: 130},
         B: {x: 450, y: 150, r: 50}
@@ -84,13 +84,13 @@ let belt_problem = new Vue({
 
 
 let pulley_problem = new Vue({
-    el: "#pulley-problem",
+    el: "#diagram-pulley-problem",
     data: {
         A: {x: 150, y: 150, r: 130},
         B: {x: 450, y: 150, r: 50}
     },
     computed: {
-        non_containing: function() { return vec_distance(this.A, this.B) >= this.A.r - this.B.r; },
+        containing: function() { return vec_distance(this.A, this.B) < this.A.r - this.B.r; },
         bitangent: function() { return new ExternalBitangents(this.A, this.B); },
         C: function() { return this.bitangent.C; },
         D: function() { return this.bitangent.D; },
@@ -105,7 +105,7 @@ let pulley_problem = new Vue({
 
 
 let hugging_edge = new Vue({
-    el: "#hugging-edge",
+    el: "#diagram-hugging-edge",
     data: {
         A: {x: 150, y: 200},
         C: {x: 300, y: 100, r: 40},
@@ -133,28 +133,30 @@ let hugging_edge = new Vue({
 
 
 let surfing_line_of_sight = new Vue({
-    el: "#surfing-line-of-sight-diagram",
+    el: "#diagram-surfing-line-of-sight",
     data: {
         A: {x: 150, y: 150},
         B: {x: 450, y: 150},
-        C: {x: 300, y: 90, r: 50}
+        C: {x: 300, y: 125, r: 50}
     },
     computed: {
         calculation: function() { return segment_circle_intersection(this.A, this.B, this.C); },
-        D: function() { return this.calculation.D; },
+        D: function() { return vec_add(this.calculation.D, {x: 0, y: 1e-6}); /* need epsilon for label placement when C.y == 0 */ },
         intersects: function() { return this.calculation.intersects; }
     }
 });
 
 
 let circle_overlap = new Vue({
-    el: "#circle-overlap",
+    el: "#diagram-circle-overlap",
     data: {
-        A: {x: 150, y: 120, r: 100},
-        B: {x: 350, y: 180, r: 60}
+        A: {x: 220, y: 120, r: 100},
+        B: {x: 350, y: 180, r: 80}
     },
     computed: {
         valid: function() { return !isNaN(this.theta); },
+        containing: function() { return this.AB_distance < this.A.r - this.B.r; },
+        overlapping: function() { return this.AB_distance < this.A.r + this.B.r; },
         AB_distance: function() { return vec_distance(this.A, this.B); },
         AB_angle: function() { return vec_facing(this.A, this.B); },
         C: function() { return vec_interpolate(this.A, this.B, this.a / this.AB_distance); },
@@ -170,5 +172,8 @@ let circle_overlap = new Vue({
         theta: function() {
             return Math.acos(this.a / this.A.r);
         },
+        opposite_C: function() {
+            return direction_step(this.C, 1, vec_facing(this.A, this.B) + Math.PI/4);
+        }
     }
 });

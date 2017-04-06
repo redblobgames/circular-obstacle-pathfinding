@@ -4,8 +4,11 @@ svg { pointer-events: none; -ms-user-select:none;-moz-user-select:none;-webkit-u
 text { text-anchor: middle; }
 line { fill: none; stroke: black; }
 .dashed { stroke-dasharray: 4,3; }
-.graph-node { fill: hsl(220,75%,50%); }
-.graph-edge { fill: none; stroke: hsl(120,50%,50%); stroke-width: 2px; }
+.graph-node { fill: hsl(230,75%,50%); }
+.surfing-edge { fill: none; stroke: hsl(260,30%,60%); stroke-width: 2.5px; }
+.hugging-edge { fill: none; stroke: hsl(200,50%,50%); stroke-width: 3.5px; }
+.invalid-edge { stroke: hsl(0,50%,50%); stroke-width: 5.0px; }
+
 .draggable { pointer-events: visible; cursor: move; }
 .draggable:hover { filter:url(#drop-shadow); }
 .draggable:hover.dragging { filter:none; }

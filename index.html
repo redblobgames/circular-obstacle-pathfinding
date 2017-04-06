@@ -47,22 +47,23 @@
           [TODO: slider for actor radius] [TODO: calculate A* on this graph]
         </p>
 
-        <svg id="graph-busy-edges" width="600" height="300">
+        <svg id="diagram-graph-busy-edges" width="600" height="300">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A">
             <circle :r="Math.max(A.r, 5)" />
           </a-draggable>
           <circle v-for="A in circles"
+                  class="hugging-edge"
                   :cx="A.x" :cy="A.y" :r="A.r"
-                  fill="none" stroke="black" class="graph-edge" />
-          <line v-for="edge in edges" class="graph-edge"
+                  style="stroke-width: 2px" />
+          <line v-for="edge in edges" class="surfing-edge"
                 :x1="edge[0].x" :y1="edge[0].y"
                 :x2="edge[1].x" :y2="edge[1].y"
                 style="stroke-width: 1px" />
           <circle v-for="edge in edges" class="graph-node"
-                  :cx="edge[0].x" :cy="edge[0].y" r="3" />
+                  :cx="edge[0].x" :cy="edge[0].y" r="2" />
           <circle v-for="edge in edges" class="graph-node"
-                  :cx="edge[1].x" :cy="edge[1].y" r="3" />
+                  :cx="edge[1].x" :cy="edge[1].y" r="2" />
         </svg>
 
         <p>
@@ -175,15 +176,15 @@
           graph: generate all of the possible surfing and hugging edges.
         </p>
 
-        <svg id="graph-all-edges" width="600" height="300">
+        <svg id="diagram-graph-all-edges" width="600" height="300">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A">
             <circle :r="Math.max(A.r, 5)" />
           </a-draggable>
           <circle v-for="A in circles"
                   :cx="A.x" :cy="A.y" :r="A.r"
-                  fill="none" stroke="black" class="graph-edge" />
-          <line v-for="edge in edges" class="graph-edge"
+                  fill="none" stroke="black" class="hugging-edge" />
+          <line v-for="edge in edges" class="surfing-edge"
                 :x1="edge[0].x" :y1="edge[0].y"
                 :x2="edge[1].x" :y2="edge[1].y" />
           <circle v-for="edge in edges" class="graph-node"
@@ -213,7 +214,7 @@
           in the diagram below.
         </p>
 
-        <svg id="belt-problem" width="600" height="300">
+        <svg id="diagram-belt-problem" width="600" height="300">
           <defs>
             <clipPath id="belt-problem-clip">
               <circle :cx="B.x" :cy="B.y" :r="B.r" />
@@ -232,8 +233,8 @@
             <line class="dashed" :x1="A.x" :y1="A.y" :x2="D.x" :y2="D.y" />
             <line class="dashed" :x1="B.x" :y1="B.y" :x2="E.x" :y2="E.y" />
             <line class="dashed" :x1="B.x" :y1="B.y" :x2="F.x" :y2="F.y" />
-            <line class="graph-edge" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" />
-            <line class="graph-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" />
+            <line class="surfing-edge" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" />
+            <line class="surfing-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" />
             <circle class="graph-node" :cx="C.x" :cy="C.y" r="5" />
             <circle class="graph-node" :cx="D.x" :cy="D.y" r="5" />
             <circle class="graph-node" :cx="E.x" :cy="E.y" r="5" />
@@ -272,7 +273,7 @@
           similar technique.
         </p>
 
-        <svg id="pulley-problem" width="600" height="300">
+        <svg id="diagram-pulley-problem" width="600" height="300">
           <defs>
             <clipPath id="pulley-problem-clip">
               <circle :cx="B.x" :cy="B.y" :r="B.r" />
@@ -282,17 +283,17 @@
           <a-draggable :model="B"><circle :r="B.r" /></a-draggable>
           <circle :cx="A.x" :cy="A.y" :r="A.r" fill="none" stroke="black" />
           <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
-          <circle :cx="A.x" :cy="A.y" :r="A.r" :fill="non_containing?'hsl(240,25%,85%)':'hsl(0,20%,85%)'" clip-path="url(#pulley-problem-clip)" />
+          <circle :cx="A.x" :cy="A.y" :r="A.r" :fill="containing?'hsl(0,20%,85%)':'hsl(240,25%,85%)'" clip-path="url(#pulley-problem-clip)" />
           <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
           <a-label :at="A" :opposite="B" label="A" />
           <a-label :at="B" :opposite="A" label="B" />
-          <template v-if="non_containing">
+          <template v-if="!containing">
             <line class="dashed" :x1="A.x" :y1="A.y" :x2="C.x" :y2="C.y" />
             <line class="dashed" :x1="A.x" :y1="A.y" :x2="D.x" :y2="D.y" />
             <line class="dashed" :x1="B.x" :y1="B.y" :x2="E.x" :y2="E.y" />
             <line class="dashed" :x1="B.x" :y1="B.y" :x2="F.x" :y2="F.y" />
-            <line class="graph-edge" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" />
-            <line class="graph-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" />
+            <line class="surfing-edge" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" />
+            <line class="surfing-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" />
             <circle class="graph-node" :cx="C.x" :cy="C.y" r="5" />
             <circle class="graph-node" :cx="D.x" :cy="D.y" r="5" />
             <circle class="graph-node" :cx="E.x" :cy="E.y" r="5" />
@@ -342,15 +343,15 @@
           the surfing edge, and we should throw the edge away.
         </p>
 
-        <svg id="surfing-line-of-sight-diagram" width="600" height="300">
+        <svg id="diagram-surfing-line-of-sight" width="600" height="300">
           <defs>
             <clipPath id="surfing-line-of-sight-clip">
               <circle :cx="C.x" :cy="C.y" :r="C.r" />
             </clipPath>
           </defs>
-          <line class="graph-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+          <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
           <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
-          <line class="graph-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" clip-path="url(#surfing-line-of-sight-clip)" style="stroke:hsl(0,50%,50%);stroke-width:3px" />
+          <line class="surfing-edge invalid-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" clip-path="url(#surfing-line-of-sight-clip)"/>
           <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
           <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
           <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
@@ -409,13 +410,13 @@
           surfing edge.
         </p>
 
-        <svg id="hugging-edge" width="600" height="300">
+        <svg id="diagram-hugging-edge" width="600" height="300">
           <template v-if="valid">
-            <line :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" fill="none" stroke="black" />
-            <line :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" fill="none" stroke="black" />
+            <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+            <line class="surfing-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" />
           </template>
-          <a-draggable :model="A"><circle r="10" /></a-draggable>
-          <a-draggable :model="E"><circle r="10" /></a-draggable>
+          <a-draggable :model="A"><circle r="5" /></a-draggable>
+          <a-draggable :model="E"><circle r="5" /></a-draggable>
           <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
           <template v-if="valid">
             <line class="dashed" :x1="C.x" :y1="C.y" :x2="B.x" :y2="B.y" />
@@ -424,9 +425,11 @@
             <a-label :at="B" :opposite="C" label="B" />
             <a-label :at="D" :opposite="C" label="D" />
           </template>
+          <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
+          <circle class="graph-node" :cx="E.x" :cy="E.y" r="5" />
           <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
           <template v-if="valid">
-            <path class="graph-edge" :d="arc_path" />
+            <path class="hugging-edge" :d="arc_path" />
             <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
             <circle class="graph-node" :cx="D.x" :cy="D.y" r="5" />
           </template>
@@ -494,6 +497,7 @@
           then the circles cannot interfere with each others' hugging
           edges.
         </p>
+        
         <p>
           If none of these cases hold, then the circles intersect at two
           points&mdash;if the circles are tangent to each other, these two
@@ -501,7 +505,7 @@
           connects the intersection points; it's perpendicular to the line
           connecting \(A\) and \(B\) at some point \(C\). We can calculate the
           distance \(a\) from \(A\) to \(C\) as follows:
-
+          
           \[a = {r_A^2 - r_B^2 + d^2 \over 2d } \]
 
           Having found \(a\), we can find the angle \(\theta\):
@@ -511,7 +515,7 @@
           points, corresponding to positive and negative \(\theta\).
         </p>
 
-        <svg id="circle-overlap" width="600" height="300">
+        <svg id="diagram-circle-overlap" width="600" height="300">
           <a-draggable :model="A"><circle :r="A.r" /></a-draggable>
           <a-draggable :model="B"><circle :r="B.r" /></a-draggable>
           <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
@@ -522,18 +526,19 @@
           <circle :cx="B.x" :cy="B.y" :r="B.r" fill="none" stroke="black" />
           <circle :cx="A.x" :cy="A.y" r="3" fill="black" />
           <circle :cx="B.x" :cy="B.y" r="3" fill="black" />
-          <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
+          <circle v-if="valid" :cx="C.x" :cy="C.y" r="3" fill="black" />
           <circle v-if="valid" :cx="D.x" :cy="D.y" r="3" fill="black" />
           <circle v-if="valid" :cx="E.x" :cy="E.y" r="3" fill="black" />
           <a-label :at="A" :opposite="B" label="A" />
           <a-label :at="B" :opposite="A" label="B" />
-          <a-label :at="C" :opposite="B" label="C" />
+          <a-label v-if="valid" :at="C" :opposite="opposite_C" label="C" />
           <a-label v-if="valid" :at="theta_AC" :opposite="A" label="θ" />
           <a-label v-if="valid" :at="theta_AD" :opposite="A" label="θ" />
           <a-label v-if="valid" :at="D" :opposite="C" label="D" />
           <a-label v-if="valid" :at="E" :opposite="C" label="E" />
           <text x="300" y="275">
-            TODO: detect and describe cases
+            <template v-if="containing">Larger circle contains smaller one</template>
+            <template v-if="!overlapping">Circles don't overlap</template>
           </text>
         </svg>
 
