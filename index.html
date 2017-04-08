@@ -153,16 +153,56 @@
         </p>
 
         <p>
-          Before A* can run on the forest of round obstacles, we need to convert
-          it into a graph. Remember that all the paths through the forest
-          consist of alternating line segments and arc sections. The segments
-          and arcs act as edges in the graph; the endpoints of the segments and
-          arcs—and the start and goal points—become the nodes. A
-          path through this graph is a series of nodes (that is, segment or arc
-          endpoints) connected by edges (that is, segments or arcs).
+          Before A* can run on the forest of round obstacles, we need
+          to convert it into a graph. All the paths through the forest
+          consist of alternating line segments
+
+          <svg class="plain" width="5em" height="1em" viewBox="0 0 100 20">
+            <path class="surfing-edge" d="M 10,12 L 90,12" />
+            <circle class="graph-node" cx="10" cy="12" r="4" />
+            <circle class="graph-node" cx="90" cy="12" r="4" />
+          </svg>
+
+          and arc sections
+
+          <svg class="plain" width="5em" height="1em" viewBox="0 0 100 20">
+            <path class="hugging-edge" d="M 10,20 A 50,50 0 0 1 90,20" />
+            <circle class="graph-node" cx="10" cy="20" r="4" />
+            <circle class="graph-node" cx="90" cy="20" r="4" />
+          </svg>
+
+          . These are edges in the path graph. The endpoints of these
+          edges become nodes
+
+          <svg class="plain" width="1em" height="1em" viewBox="0 0 20 20">
+            <circle class="graph-node" cx="10" cy="10" r="8" />
+          </svg>
+
+          . A path through the graph is a series of nodes connected by edges
+
+          <svg class="plain" width="10em" height="1em" viewBox="0 0 200 20">
+            <path class="surfing-edge" d="M 5,18 L 60,18" />
+            <path class="hugging-edge" d="M 60,18 A 50,50 0 0 1 140,18" />
+            <path class="surfing-edge" d="M 140,18 L 195,18" />
+            <circle class="graph-node" cx="5" cy="18" r="5" />
+            <circle class="graph-node" cx="60" cy="18" r="5" />
+            <circle class="graph-node" cx="140" cy="18" r="5" />
+            <circle class="graph-node" cx="195" cy="18" r="5" />
+          </svg>
+          
+          .
         </p>
 
-        [Diagram showing the path broken into segments and arcs with common endpoints]
+        <svg id="diagram-one-path" width="600" height="300">
+          <circle cx="340" cy="200" r="90" fill="none" stroke="black" class="hugging-edge"></circle>
+          <line x1="75" y1="270" x2="333" y2="290" class="surfing-edge"></line>
+          <line x1="543" y1="97" x2="409" y2="258" class="surfing-edge"></line>
+          <circle cx="75" cy="270" r="5" class="graph-node"></circle>
+          <circle cx="333" cy="290" r="5" class="graph-node"></circle>
+          <circle cx="543" cy="97" r="5" class="graph-node"></circle>
+          <circle cx="409" cy="258" r="5" class="graph-node"></circle>
+          <text y="20" x="300">PLACEHOLDER</text>
+        </svg>
         
         <p>
           Both segments and arcs act as edges in the graph. We’ll call the

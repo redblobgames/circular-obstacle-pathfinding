@@ -1,12 +1,14 @@
 /* Diagrams */
 
 svg { pointer-events: none; -ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none; }
+svg.plain { overflow: visible; }
 text { text-anchor: middle; }
 line { fill: none; stroke: black; }
 .dashed { stroke-dasharray: 4,3; }
 .graph-node { fill: hsl(230,75%,50%); }
 .surfing-edge { fill: none; stroke: hsl(260,30%,60%); stroke-width: 2.5px; }
 .hugging-edge { fill: none; stroke: hsl(200,50%,50%); stroke-width: 3.5px; }
+svg.plain .surfing-edge, svg.plain .hugging-edge { stroke-width: 4px; }
 .invalid-edge { stroke: hsl(0,50%,50%); stroke-width: 5.0px; }
 
 .draggable { pointer-events: visible; cursor: move; }
@@ -71,7 +73,7 @@ a:hover, a:focus { text-decoration: underline; }
 header, footer { color: hsl(0,0%,100%); background-color: hsl(0,0%,20%); }
 header a, footer a { color: #fff; text-decoration: underline; }
 
-pre, svg {
+pre, svg:not(.plain) {
     background-color: hsl(0,0%,100%);
     border: 1px solid hsl(0,0%,80%);
     border-radius: 10px;
