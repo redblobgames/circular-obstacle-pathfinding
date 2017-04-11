@@ -38,13 +38,13 @@
         </p>
 
         <p>
-          But A* isn’t just a grid algorithm! It can work on any graph. We can
-          use A* to find a path for this round object through this world of
+          But A* isn’t just a grid algorithm! It can work on any
+          graph. We can use A* to find a path through this world of
           round obstacles.
         </p>
 
         <p>
-          [TODO: slider for actor radius] [TODO: calculate A* on this graph]
+          [TODO: calculate A* on this graph]
         </p>
 
         <svg id="diagram-graph-busy-edges" width="600" height="300">
@@ -70,28 +70,16 @@
           How does the same algorithm solve both problems?
         </p>
 
-        <h3 id="first-steps">First steps</h3>
+        <h3 id="first-steps">Segments and arcs</h3>
 
         <p>
-          When navigating a round object through a world of round obstacles, we
-          can make a few observations that simplify the problem. First, we can
-          make things easier by noticing that moving a circle of radius <em>r</em>
-          through a forest of round obstacles is identical to moving a point
-          through that same forest with one change: each obstacle has its radius
-          increased by <em>r</em>. This is an extremely simple application of
-          <em>Minkowski addition</em>, and it’s so effective for this case that from
-          now on we’ll ignore the radius of the moving object. If it has a
-          radius larger than zero, we’ll just increase the size of the obstacles
-          before we start.
-        </p>
-
-        <p>
-          Another observation to make about the problem is that the paths
-          consist of two types of sections: line segments and circular arcs. The
-          endpoints of the line segments can be the starting or ending points,
-          but they can also be points on the circular obstacles which are
-          tangent to the line segments. The circular arcs are paths along the
-          boundaries of the obstacles which link up the line segments.
+          Note that the optimal path through the forest always
+          consists of two types of sections: line segments and circular
+          arcs. The endpoints of the line segments can be the starting
+          or ending points, but they can also be points on the
+          circular obstacles which are tangent to the line
+          segments. The circular arcs are paths along the boundaries
+          of the obstacles which link up the line segments.
         </p>
 
         <p>
@@ -190,7 +178,9 @@
             <circle class="graph-node" cx="195" cy="18" r="5" />
           </svg>
           
-          .
+          . [<em>Note: the surfing edges in this little picture are not
+          tangent to the hugging edge, and I think this might be
+          misleading.</em>]
         </p>
 
         <svg id="diagram-one-path" width="600" height="300">
@@ -475,38 +465,13 @@
           </template>
         </svg>
 
-        <p>
-          [TODO: is left/right an optimization we can leave for later, or do we need a diagram to show it now?]
-        </p>
 
-        <p>
-          Hugging edges connect surfing edges which touch the same circle, but
-          not every pair of surfing edges which touch a circle can be connected
-          by a hugging edge. Each surfing edge touching a circle can be
-          classified into one of two types: <em>left</em> edges and <em>right</em>
-          edges. Viewed from the endpoint which is not touching the circle, left
-          surfing edges intersect the left side of the circle, while right edges
-          touch the circle on the right side. Every hugging edge connects a left
-          surfing edge and a right surfing edge; if one were to traverse the
-          hugging edge from the left surfing edge to the right surfing edge,
-          travel around the circle would be clockwise.
-        </p>
+<p>
+To find the set of hugging edges for a circle, first find all the
+surfing edges that touch the circle. Then, create hugging edges between all the surfing
+edge endpoints on the circle.
 
-        <p>
-          [Interactive diagram: three draggable circles with all bitangents
-          drawn, with each bitangent endpoint drawn red or blue depending on
-          whether they are left or right edges on that circle.]
-        </p>
-
-        <p>
-          To find the set of hugging edges for a circle, first collect all the
-          surfing edge endpoints on the circle. Then for each left surfing edge
-          endpoint, generate a hugging edge to each right surfing edge endpoint,
-          traversing the circle clockwise. Because the graph is undirected, each
-          of these hugging edges implies the existence of another hugging edge
-          which starts at a right edge, traverses around the circle
-          anticlockwise, and terminates on a left edge.
-        </p>
+</p>
 
         <h4 id="hugging-line-of-sight">Line of sight</h4>
 
@@ -605,8 +570,8 @@
         <h2 id="putting-it-all-together">Putting it all together</h2>
 
         <p>
-          Given Minkowski expansion of obstacles, the generation of surfing and
-          hugging edges, and the culling of blocked edges, we can run
+          Given the generation of surfing and hugging edges, and the
+          culling of blocked edges, we can produce a graph and run
           pathfinding using the A* algorithm.
         </p>
 
@@ -619,6 +584,22 @@
         <p>
           We could just eliminate this section for the first version.
         </p>
+
+<h3>Variable actor radius via Minkowski expansion</h3>
+
+        <p>
+          When navigating a round object through a world of round obstacles, we
+          can make a few observations that simplify the problem. First, we can
+          make things easier by noticing that moving a circle of radius <em>r</em>
+          through a forest of round obstacles is identical to moving a point
+          through that same forest with one change: each obstacle has its radius
+          increased by <em>r</em>. This is an extremely simple application of
+          <em>Minkowski addition</em>, and it’s so effective for this case that from
+          now on we’ll ignore the radius of the moving object. If it has a
+          radius larger than zero, we’ll just increase the size of the obstacles
+          before we start.
+        </p>
+
 
         <h3 id="delayed-edge-generation">Delayed edge generation</h3>
 
@@ -676,6 +657,80 @@ Don't store each path separately; put them in a tree stored in an array.
           Before putting new paths into the priority queue, see if we’ve been to
           this spot going the same direction for a cheaper cost already.
         </p>
+
+
+
+
+	<h3> Cull cusped hugging edges</h3>
+        <p>
+
+Hugging edges connect surfing edges which touch the same circle, but
+it turns out that many of these hugging edges are not eligible to be
+used in any optimal path. We can speed up the algorithm by eliminating
+them.
+</p>
+<p>
+An optimal path through the forest of obstacles always consists of
+alternating surfing and hugging edges. A surfing edge arrives at an
+obstacle on either its left or right side. In an optimal path, the
+hugging edge <em>always continues along the same side of the
+obstacle</em> until it reaches the surfing edge that it will exit the
+obstacle along. Additionally, the exit surfing edge continues the same
+direction of travel as the hugging edge. As the optimal path
+alternates between surfing and hugging edges, there is no change of
+direction at nodes.
+</p>
+
+<p>
+[Static diagram illustrating continuous flow of the path]
+</p>
+
+<p>
+We previously defined hugging edges as all the arcs which connect
+endpoints of surfing edges on a given circle. But this simple
+definition includes many hugging edges that represent direction
+changes, or <em>cusps</em>. We want to avoid hugging edges like these:
+</p>
+
+<p>
+[Static diagram showing bad hugging edges]
+</p>
+
+It's okay to put these hugging edges into the graph&mdash;A* will
+never include them in the optimal path&mdash;but by keeping them out
+of the graph, we make the algorithm more efficient.
+</p>
+
+<p>
+
+To identify the cusped hugging edges, we can classify each surfing edge
+touching a circle into one of two types: <em>left</em> edges
+and <em>right</em> edges. Viewed from the endpoint which is not
+touching the circle, left surfing edges intersect the left side of the
+circle, while right edges touch the circle on the right side. Every
+hugging edge connects a left surfing edge and a right surfing edge; if
+one were to traverse the hugging edge from the left surfing edge to
+the right surfing edge, travel around the circle would be clockwise.
+        </p>
+
+        <p>
+          [Interactive diagram: three draggable circles with all bitangents
+          drawn, with each bitangent endpoint drawn red or blue depending on
+          whether they are left or right edges on that circle.]
+        </p>
+
+        <p>
+With this distinction, we can find the set of non-cusped hugging edges
+for a circle. First collect all the surfing edges which touch the
+circle and classify them as left or right. Then for each left surfing
+edge endpoint, generate a hugging edge to each right surfing edge
+endpoint, traversing the circle clockwise. Because the graph is
+undirected, each of these hugging edges also implies the existence of
+another hugging edge which starts at a right edge, traverses around
+the circle anticlockwise, and terminates on a left edge.
+        </p>
+
+
 
         <h3 id="crossing-edge-culling">Crossing edge culling</h3>
 
