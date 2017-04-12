@@ -68,65 +68,49 @@
 
         <p>
           How does the same algorithm solve both problems?
-        </p>
-
-        <h3 id="first-steps">Segments and arcs</h3>
-
-        <p>
-          Note that the optimal path through the forest always
-          consists of two types of sections: line segments and circular
-          arcs. The endpoints of the line segments can be the starting
-          or ending points, but they can also be points on the
-          circular obstacles which are tangent to the line
-          segments. The circular arcs are paths along the boundaries
-          of the obstacles which link up the line segments.
-        </p>
-
-        <p>
-          Also notice that the paths alternate between the two types. The first
-          piece is always a line segment. If there is a direct path to the goal,
-          this is the whole path. But if the path is longer, there is an arc
-          next, followed by a segment. This may be the end of the path, or there
-          may be more arc and segment pairs. The final piece is always a
-          segment.
-        </p>
-
-        <p>
-          [Diagram here: fixed start/end, two draggable obstacles]
-        </p>
-
-        <p>
-          How can we use A* to generate this type of path? Let’s start with a
+Let’s start with a
           review of how A* works.
         </p>
 
         <h2 id="a-algorithm">A* algorithm</h2>
 
+<p>
+The A* algorithm finds the <em>optimal path</em> from the start point
+to the end point, avoiding obstacles along the way. It does this by
+gradually expanding a set of <em>partial paths</em>. Each partial path
+is a series of steps from the start point to some intermediate point
+on the way to the goal.  As A* progresses, the partial paths get
+closer and closer to the goal point. The algorithm terminates once it
+finds a complete path that it can prove to be better than any of the
+remaining possibilities.
+</p>
+
         <p>
-          A <em>partial path</em> is a series of steps from the start point to some
-          intermediate point. A* works by evaluating a set of partial paths,
-          generating new paths from the most promising path in the set, and
-          terminating once it finds a complete path to the goal that it can
-          prove to be better than any of the remaining possibilities. To do
-          this, A* keeps the partial paths in a priority queue, sorted by
-          estimated length. A partial path’s estimated length is the actual
-          measured length of the path so far, plus a guess of the remaining
-          distance to the goal. This guess must be an <em>underestimate</em>; that is,
-          the guess can be less than the actual distance, but not greater. In
-          most pathfinding problems, a good underestimate is the geometric
-          straight-line distance from the intermediate point to the goal. The
-          actual best path from an intermediate point to the goal might be
-          longer than the straight line distance, but it can’t be shorter.
+          At each step in the algorithm, A* evaluates the set of
+          partial paths and generates some new paths by expanding the
+          most promising path in the set. To do this, A* keeps the
+          partial paths in a priority queue, sorted by <em>estimated
+          length</em>&mdash;the actual measured length of the path so
+          far, plus a guess of the remaining distance to the
+          goal. This guess must be an <em>underestimate</em>; that is,
+          the guess can be less than the actual distance, but not
+          greater. In most pathfinding problems, a good underestimate
+          is the geometric straight-line distance from the end of the
+          partial path to the goal. The actual best path to the goal
+          from the end of the partial path might be longer than this
+          straight line distance, but it can’t be shorter.
         </p>
 
         <p>
-          When A* begins, the priority queue contains just one partial path: the
-          start point. The algorithm works by repeatedly removing the most
-          promising path from the priority queue. If this path ends at the goal
-          point, the algorithm is done—the priority queue ensures that no
-          other path could possibly be better. Otherwise, A* generates a set of
-          new paths by taking single steps in all possible directions, and
-          places these new paths back into the priority queue.
+          When A* begins, the priority queue contains just one partial
+          path: the start point. The algorithm works by repeatedly
+          removing the most promising path from the priority queue,
+          that is, the path with the smallest estimated length. If
+          this path ends at the goal point, the algorithm is done—the
+          priority queue ensures that no other path could possibly be
+          better. Otherwise, A* generates a set of new paths by taking
+          single steps in all possible directions, and places these
+          new paths back into the priority queue.
         </p>
 
         <h2 id="graph">Graph</h2>
