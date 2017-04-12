@@ -25,13 +25,15 @@ Vue.component('a-label', {
  * drawn at 0,0, not at x,y.
  *
  * When the svg object is dragged, it will update the x,y fields in
- * the model object, and move the <g>.
+ * the model object, and move the <g>. If a constraint= property is
+ * set, it should return a function(x,y) that returns true if the
+ * position (x,y) is an allowed position for the object.
  *
  * A Vue component version of http://www.redblobgames.com/js/draggable.js
  * specialized for dragging svg objects.
  */
 Vue.component('a-draggable', {
-    props: ['model'],
+    props: ['model', 'constraint'],
     template: `
        <g :class="classList"
           :transform='"translate(" + [this.model.x, this.model.y] + ")"'
@@ -59,9 +61,15 @@ Vue.component('a-draggable', {
             return {x: e.clientX - rect.left, y: e.clientY - rect.top};
         },
         moveTo: function(startCoords, startModel, currentCoords) {
-            // TODO: constraints on movement
-            this.model.x = startModel.x + (currentCoords.x - startCoords.x);
-            this.model.y = startModel.y + (currentCoords.y - startCoords.y);
+            const newX = startModel.x + (currentCoords.x - startCoords.x);
+            const newY = startModel.y + (currentCoords.y - startCoords.y);
+            const rect = this.$parent.$el.getBoundingClientRect();
+            if (0 <= currentCoords.x && currentCoords.x < rect.width
+                && 0 <= currentCoords.y && currentCoords.y < rect.height
+                && (this.constraint === undefined || this.constraint(newX, newY))) {
+                this.model.x = newX;
+                this.model.y = newY;
+            }
         },
         mousedown: function(e) {
             const startCoords = this.coords(e);

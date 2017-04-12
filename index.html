@@ -49,7 +49,7 @@
 
         <svg id="diagram-graph-busy-edges" width="600" height="300">
           <a-draggable v-for="(A, index) in circles"
-                       :key="index" :model="A">
+                       :key="index" :model="A" :constraint="no_touching_circle(index)">
             <circle :r="Math.max(A.r, 5)" />
           </a-draggable>
           <circle v-for="A in circles"
@@ -68,22 +68,22 @@
 
         <p>
           How does the same algorithm solve both problems?
-Let’s start with a
+          Let’s start with a
           review of how A* works.
         </p>
 
         <h2 id="a-algorithm">A* algorithm</h2>
 
-<p>
-The A* algorithm finds the <em>optimal path</em> from the start point
-to the end point, avoiding obstacles along the way. It does this by
-gradually expanding a set of <em>partial paths</em>. Each partial path
-is a series of steps from the start point to some intermediate point
-on the way to the goal.  As A* progresses, the partial paths get
-closer and closer to the goal point. The algorithm terminates once it
-finds a complete path that it can prove to be better than any of the
-remaining possibilities.
-</p>
+        <p>
+          The A* algorithm finds the <em>optimal path</em> from the start point
+          to the end point, avoiding obstacles along the way. It does this by
+          gradually expanding a set of <em>partial paths</em>. Each partial path
+          is a series of steps from the start point to some intermediate point
+          on the way to the goal.  As A* progresses, the partial paths get
+          closer and closer to the goal point. The algorithm terminates once it
+          finds a complete path that it can prove to be better than any of the
+          remaining possibilities.
+        </p>
 
         <p>
           At each step in the algorithm, A* evaluates the set of
@@ -192,7 +192,7 @@ remaining possibilities.
 
         <svg id="diagram-graph-all-edges" width="600" height="300">
           <a-draggable v-for="(A, index) in circles"
-                       :key="index" :model="A">
+                       :key="index" :model="A" :constraint="no_touching_circle(index)">
             <circle :r="Math.max(A.r, 5)" />
           </a-draggable>
           <circle v-for="A in circles"

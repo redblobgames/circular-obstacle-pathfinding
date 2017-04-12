@@ -46,6 +46,20 @@ function generate_surfing_edges(circles) {
 }
 
 
+function no_touching_circle(index) {
+    return (x, y) => {
+        for (let i = 0; i < this.circles.length; i++) {
+            if (i != index
+                && vec_distance({x, y}, this.circles[i])
+                <= this.circles[i].r + this.circles[index].r) {
+                return false;
+            }
+        }
+        return true;
+    };
+}
+
+
 let graph_all_edges = new Vue({
     el: "#diagram-graph-all-edges",
     data: {
@@ -57,6 +71,9 @@ let graph_all_edges = new Vue({
     },
     computed: {
         edges: function() { return generate_surfing_edges(this.circles); }
+    },
+    methods: {
+        no_touching_circle: no_touching_circle
     }
 });
 
@@ -77,5 +94,8 @@ let graph_busy_edges = new Vue({
     },
     computed: {
         edges: function() { return generate_surfing_edges(this.circles); }
+    },
+    methods: {
+        no_touching_circle: no_touching_circle
     }
 });
