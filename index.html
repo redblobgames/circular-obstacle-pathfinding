@@ -56,20 +56,17 @@
                   class="hugging-edge"
                   :cx="A.x" :cy="A.y" :r="A.r"
                   style="stroke-width: 2px" />
-          <line v-for="edge in edges" class="surfing-edge"
+          <line v-for="edge in surfing_edges" class="surfing-edge"
                 :x1="edge[0].x" :y1="edge[0].y"
                 :x2="edge[1].x" :y2="edge[1].y"
                 style="stroke-width: 1px" />
-          <circle v-for="edge in edges" class="graph-node"
-                  :cx="edge[0].x" :cy="edge[0].y" r="2" />
-          <circle v-for="edge in edges" class="graph-node"
-                  :cx="edge[1].x" :cy="edge[1].y" r="2" />
+          <circle v-for="node in nodes" class="graph-node"
+                  :cx="node.x" :cy="node.y" :r="circles[node.circle].r == 0? 7 : 2" />
         </svg>
 
         <p>
-          How does the same algorithm solve both problems?
-          Let’s start with a
-          review of how A* works.
+          How does the same algorithm solve both problems? Let’s start
+          with a review of how A* works.
         </p>
 
         <h2 id="a-algorithm">A* algorithm</h2>
@@ -141,16 +138,16 @@
             <path class="hugging-edge" d="M 10,20 A 50,50 0 0 1 90,20" />
             <circle class="graph-node" cx="10" cy="20" r="4" />
             <circle class="graph-node" cx="90" cy="20" r="4" />
-          </svg>
+          </svg>.
 
-          . These are edges in the path graph. The endpoints of these
+          These are edges in the path graph. The endpoints of these
           edges become nodes
 
           <svg class="plain" width="1em" height="1em" viewBox="0 0 20 20">
             <circle class="graph-node" cx="10" cy="10" r="8" />
-          </svg>
+          </svg>.
 
-          . A path through the graph is a series of nodes connected by edges
+          A path through the graph is a series of nodes connected by edges
 
           <svg class="plain" width="10em" height="1em" viewBox="0 0 200 20">
             <path class="surfing-edge" d="M 5,18 L 60,18" />
@@ -160,9 +157,9 @@
             <circle class="graph-node" cx="60" cy="18" r="5" />
             <circle class="graph-node" cx="140" cy="18" r="5" />
             <circle class="graph-node" cx="195" cy="18" r="5" />
-          </svg>
+          </svg>.
           
-          . [<em>Note: the surfing edges in this little picture are not
+          [<em>Note: the surfing edges in this little picture are not
           tangent to the hugging edge, and I think this might be
           misleading.</em>]
         </p>
@@ -198,13 +195,11 @@
           <circle v-for="A in circles"
                   :cx="A.x" :cy="A.y" :r="A.r"
                   fill="none" stroke="black" class="hugging-edge" />
-          <line v-for="edge in edges" class="surfing-edge"
+          <line v-for="edge in surfing_edges" class="surfing-edge"
                 :x1="edge[0].x" :y1="edge[0].y"
                 :x2="edge[1].x" :y2="edge[1].y" />
-          <circle v-for="edge in edges" class="graph-node"
-                  :cx="edge[0].x" :cy="edge[0].y" r="5" />
-          <circle v-for="edge in edges" class="graph-node"
-                  :cx="edge[1].x" :cy="edge[1].y" r="5" />
+          <circle v-for="node in nodes" class="graph-node"
+                  :cx="node.x" :cy="node.y" r="5" />
         </svg>
 
         <h3 id="generating-surfing-edges">Generating surfing edges</h3>
