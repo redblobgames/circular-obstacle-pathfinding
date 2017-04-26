@@ -103,20 +103,21 @@
           that is, the path with the smallest estimated length. If
           this path ends at the goal point, the algorithm is done—the
           priority queue ensures that no other path could possibly be
-          better. Otherwise, A* generates a set of new paths by taking
-          single steps in all possible directions, and places these
-          new paths back into the priority queue.
+          better. Otherwise, starting from the end of the partial path
+          it removed from the queue, A* generates some new paths by
+          taking single steps in all possible directions.  It places
+          these new paths back into the priority queue and begins the
+          process again.
         </p>
 
         <h2 id="graph">Graph</h2>
 
         <p>
           A* works on a <em>graph</em>: a collection of <em>nodes</em> connected by
-          <em>edges</em>. When generating new paths from a partial path that ends at
-          node <em>q</em>, A* makes a new path for each edge leading out of <em>q</em>. In a
+          <em>edges</em>. In a
           grid-based world, each node represents an individual grid location,
           while each edge represents a connection to a neighboring location to
-          the north, south, east and west.
+          the north, south, east or west.
         </p>
 
         <p>
@@ -264,8 +265,9 @@
         <p>
           It turns out that, given circles centered on points \(A\)
           and \(B\) with radii \(r_A\) and \(r_B\), and centers
-          separated by distance \(d\):
-          \[\theta = \arccos{{r_A+r_B}\over{d}}\]
+          separated by distance \(d\): \[\theta =
+          \arccos{{r_A+r_B}\over{d}}\] Once \(\theta\) is known, it's
+          easy to find points \(C\), \(D\), \(E\) and \(F\).
         </p>
 
         <h4 id="external-bitangents">External bitangents</h4>
@@ -366,9 +368,9 @@
         
         <p>
           To calculate the distance from point \(C\) to line segment \(\overline{AB}\),
-          use the following method
-          (from <a href="http://paulbourke.net/geometry/pointlineplane/">Paul
-          Bourke</a>):
+          use the 
+          <a href="http://paulbourke.net/geometry/pointlineplane/">following
+          method</a>:
         </p>
         
         <p>
@@ -384,7 +386,10 @@
 
           \[u = {{(x_C - x_A)(x_B - x_A) + (y_C - y_A)(y_B - y_A)} \over
           {(x_B - x_A)(x_B - x_A) + (y_B - y_A)(y_B - y_A)}} \]
-
+        </p>
+        
+        <!---
+        <p>
           If \(u\) is outside the range of \([0,1]\), then the perpendicular
           strikes the \(\overline{AB}\) line somewhere outside the
           \(\overline{AB}\) segment. By clamping \(u\) inside \([0,1]\), we can
@@ -400,6 +405,7 @@
           Then we can restrict the motion of the circle so that it can't touch them, and by extension
           it can't touch points A or B.</em>]
         </p>
+        -->
         
         <p>
           Thus, the distance \(d\) from \(C\) to segment
@@ -465,9 +471,9 @@
         <h2 id="putting-it-all-together">Putting it all together</h2>
 
         <p>
-          Given the generation of surfing and hugging edges, and the
-          culling of blocked edges, we can produce a graph and run
-          pathfinding using the A* algorithm.
+          Given the generation of surfing edges, hugging edges and
+          nodes, and the culling of blocked surfing edges, we can
+          produce a graph and run pathfinding using the A* algorithm.
         </p>
 
         <p>
@@ -488,45 +494,83 @@
           few.
         </p>
 
-        <h3>Allow obstacles to touch</h3>
+        <h3>Obstacles that touch</h3>
 
         <p>
-          Perhaps you picked up on it&mdash;none of the circles in any of the
-          examples given so far have overlapped or even touched. Allowing
+          Perhaps you picked up on it&mdash;none of the circular obstacles in
+          the examples given so far have overlapped or even touched. Allowing
           circles to touch makes the pathfinding problem a little, but not much,
           harder.
         </p>
-
+        
         <h4>Bitangents</h4>
 
         <p>
-          When two circles overlap, there are no internal bitangents
-          between them.  In this case \({r_A+r_B}\over d\) is greater
-          than one. Since arccosine is undefined for inputs outside
-          its domain of \([-1, 1]\), it's important to check for
-          circle overlap before performing the arccosine.
+          Recall that bitangents can be found using this formula for internal bitangents:
+
+          \[\theta = \arccos{{r_A+r_B}\over{d}}\]
+          and this one for external bitangents:
+          \[\theta = \arccos{{r_A - r_B} \over d}\]
+        </p>
+
+        <p>
+          When two circles touch or overlap, there are no internal
+          bitangents between them.  In this case \({r_A+r_B}\over d\)
+          is greater than one. Since arccosine is undefined for inputs
+          outside its domain of \([-1, 1]\), it's important to check
+          for circle overlap before performing the arccosine.
         </p>
         
         <p>
-          If one circle completely
-          encloses the other, then there are no external
-          bitangents. In this case \({r_A - r_B} \over d\) is outside
-          the range \([-1, 1]\). Again, because arccosine is undefined
-          for such inputs, it's important to check for this case
-          first.
+          Likewise, if one circle completely encloses the other, then
+          there are no external bitangents between the circles. In
+          this case \({r_A - r_B} \over d\) is outside the range
+          \([-1, 1]\). Again, because arccosine is undefined for such
+          inputs, it's important to check for this case first.
         </p>
         
         <p>
-          Some hugging edges will be interrupted.
+          [Diagram showing both internal and external bitangents of two different-sized
+          circles; with overlap allowed and the various touch/overlap cases annotated]
         </p>
-        
+
+        <h4 id="hugging-line-of-sight">Surfing edge line of sight</h4>
+
+        <p>
+          When obstacles are allowed to touch or overlap, new cases
+          arise in calculating surfing edge line of sight.
+          Recall the calculation of \(u\), the fraction of distance along the surfing edge
+          at which a perpendicular ascender to the point touches the edge. When
+          circles are not allowed to touch, a value of \(u\) outside \([0,1]\) means
+          that the circle cannot touch the edge because to do so it would have to touch
+          one of the endpoints of the edge. This is impossible, because the endpoints of the edge
+          are already tangent to (and thus touching) other circles.
+        </p>
+
+        <p>
+          [Diagram of line of sight allowing overlapping circles.]
+        </p>
+
+        <p>
+          However, if circles are allowed to overlap, then values of \(u\) outside \([0,1]\)
+          might block line of sight along the edge. This corresponds to cases where the circle
+          is off the end of the surfing edge, but covering or touching an endpoint. To catch these
+          cases mathematically, we need only <em>clamp</em> \(u\) to the range \([0,1]\).
+          Thus, instead of: 
+          \[D = A + u * (B - A)\]
+          we have:
+          \[D = A + clamp(u, 0, 1) * (B - A)\]
+          Everything else remains the same.
+        </p>
+
         <h4 id="hugging-line-of-sight">Hugging edge line of sight</h4>
 
         <p>
-          Hugging edges can be blocked by obstacles just as surfing edges
-          can. Consider the hugging edge in the diagram below. If another
-          obstacle touches the hugging edge, it’s blocked and should be thrown
-          out.
+          When obstacles are allowed to touch or overlap, hugging
+          edges can be blocked by obstacles just as surfing edges
+          can. Consider the hugging edge in the diagram below. If
+          another obstacle touches the hugging edge, it’s blocked and
+          should be thrown out.
         </p>
 
         <p>
@@ -537,9 +581,9 @@
 
         <p>
           To determine whether a hugging edge is blocked by another
-          obstacle, use the following method
-          by <a href="http://paulbourke.net/geometry/circlesphere/">Paul
-          Bourke</a> to determine the points at which the two circles
+          obstacle, use the
+          <a href="http://paulbourke.net/geometry/circlesphere/">following method
+          </a> to determine the points at which the two circles
           intersect.  Given circles centered on points \(A\) and \(B\)
           with radii \(r_A\) and \(r_B\), where \(d\) is the distance
           between \(A\) and \(B\), there are a few cases to check for
@@ -601,6 +645,16 @@
           edge.  Note that we don’t have to worry about the case where the
           hugging edge is entirely contained within an obstacle, as the line of
           sight culling for surfing edges will have already thrown the edge out.
+        </p>
+
+        <p>
+          After making the changes for bitangent calculation and line of sight
+          for surfing and hugging edges, everything else just works. Here is a demo of
+          navigating a collection of obstacles that may overlap:
+        </p>
+        
+        <p>
+          [Diagram: A* working on problem where circles are allowed to overlap.]
         </p>
 
         <h3>Variable actor radius via Minkowski expansion</h3>
