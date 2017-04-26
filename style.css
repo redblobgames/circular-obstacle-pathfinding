@@ -43,8 +43,6 @@ html {
 body {
     margin: 0;
     padding: 0;
-    color: hsl(0,0%,20%);
-    background-color: hsl(0,0%,95%);
     line-height: 1.5;
 }
 
@@ -67,11 +65,14 @@ header div, section div, footer div {
 
 /* Colors */
 
-a { text-decoration: none; color: hsl(240,50%,50%); }
+body { color: hsl(0,0%,100%); background-color: hsl(0,0%,20%); }
+section { color: hsl(0,0%,20%); background-color: hsl(0,0%,95%); }
+
+a { color: #fff; text-decoration: underline; }
+section a { color: hsl(240,50%,50%); text-decoration: none; }
 a:hover, a:focus { text-decoration: underline; }
 
-header, footer { color: hsl(0,0%,100%); background-color: hsl(0,0%,20%); }
-header a, footer a { color: #fff; text-decoration: underline; }
+section { border: 1px solid white; margin: 20px 0; box-shadow: inset 0 0 10px hsla(0,0%,20%,0.2); }
 
 pre, svg:not(.plain) {
     background-color: hsl(0,0%,100%);
