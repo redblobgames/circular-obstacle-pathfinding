@@ -21,7 +21,7 @@ svg.plain .surfing-edge, svg.plain .hugging-edge { stroke-width: 4px; }
 
 body, text {
     font-family: "Source Sans Pro", "Open Sans", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Tahoma", sans-serif;
-    font-size: 16px;
+    font-size: 17px;
 }    
 tt, code, kbd, samp, pre {
     font-family: "Source Code Pro", monospace, serif, "Segoe UI Symbol", "Symbol";
@@ -33,8 +33,14 @@ h2 { font-size: 32px; }
 h3 { font-size: 24px; }
 h4, h5, h6 { font-size: 18px; }
 
+section .katex { font-size: 1.1em; }
+
 
 /* Layout */
+
+* {
+    box-sizing: border-box;
+}
 
 html {
     margin: 0;
@@ -59,7 +65,10 @@ code {
     margin: 0 3px;
 }
 header div, section div, footer div {
-    max-width: 640px; padding: 20px 10px; margin: 0 auto;
+    max-width: 600px; margin: 0 auto;
+}
+header, section, footer {
+    margin: 20px 0; 
 }
 
 
@@ -72,7 +81,7 @@ a { color: #fff; text-decoration: underline; }
 section a { color: hsl(240,50%,50%); text-decoration: none; }
 a:hover, a:focus { text-decoration: underline; }
 
-section { border: 1px solid white; margin: 20px 0; box-shadow: inset 0 0 10px hsla(0,0%,20%,0.2); }
+section { border-top: 1px solid white; border-bottom: 1px solid white; box-shadow: inset 0 0 10px hsla(0,0%,20%,0.2); }
 
 pre, svg:not(.plain) {
     background-color: hsl(0,0%,100%);
