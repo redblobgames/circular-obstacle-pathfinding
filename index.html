@@ -34,17 +34,13 @@
         </p>
 
         <p>
-          [Diagram here]
+          [grid diagram here?]
         </p>
 
         <p>
           But A* isn’t just a grid algorithm! It can work on any
           graph. We can use A* to find a path through this world of
           round obstacles.
-        </p>
-
-        <p>
-          [TODO: calculate A* on this graph]
         </p>
 
         <svg id="diagram-graph-busy-edges" width="600" height="300">
@@ -62,6 +58,9 @@
                 style="stroke-width: 1px" />
           <circle v-for="node in nodes" class="graph-node"
                   :cx="node.x" :cy="node.y" :r="circles[node.circle].r == 0? 7 : 2" />
+          <path :d="d" stroke="hsl(0,50%,50%)" stroke-width="2" fill="none"/>
+          <circle v-for="A in path"
+                  :cx="A.x" :cy="A.y" :r="3" fill="hsl(0,100%,50%)" stroke="hsl(0,50%,25%)"/>
         </svg>
 
         <p>
