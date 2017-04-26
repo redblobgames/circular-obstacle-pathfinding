@@ -5,12 +5,13 @@
 const TEXT_OFFSET = {x: 0, y: 5};
 
 Vue.component('a-label', {
-    props: ['at', 'opposite', 'label'],
+    props: ['at', 'opposite', 'label', 'dx', 'dy'],
     template: '<text :x="at.x" :y="at.y" :dx="shove.x" :dy="shove.y">{{ label }}</text>',
     computed: {
         shove: function() {
             const angle = vec_facing(this.at, this.opposite);
-            return vec_add(TEXT_OFFSET, vec_polar(-15, angle));
+            return vec_add(vec_add(TEXT_OFFSET, {x: parseFloat(this.dx) || 0, y: parseFloat(this.dy) || 0}),
+                           vec_polar(-15, angle));
         }
     }
 });

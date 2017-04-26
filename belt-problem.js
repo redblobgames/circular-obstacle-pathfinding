@@ -15,8 +15,9 @@ function segment_circle_intersection(A, B, C) {
     if (u < 0.0) { u = 0.0; }
     if (u > 1.0) { u = 1.0; }
 
-    const D = vec_interpolate(A, B, u);
-    return { u: u, D: D, intersects: vec_distance(C, D) <= C.r };
+    const E = vec_interpolate(A, B, u);
+    const d = vec_distance(C, E);
+    return { u: u, d: d, E: E, intersects: d <= C.r };
 }
 
     
@@ -141,8 +142,12 @@ let surfing_line_of_sight = new Vue({
     },
     computed: {
         calculation: function() { return segment_circle_intersection(this.A, this.B, this.C); },
-        D: function() { return vec_add(this.calculation.D, {x: 0, y: 1e-6}); /* need epsilon for label placement when C.y == 0 */ },
-        intersects: function() { return this.calculation.intersects; }
+        intersects: function() { return this.calculation.intersects; },
+        d: function() { return this.calculation.d; },
+        r: function() { return this.C.r; },
+        E: function() { return vec_add(this.calculation.E, {x: 0, y: 1e-6}); /* need epsilon for label placement when C.y == 0 */ },
+        dashed_line_offset: function() { return this.C.y < this.A.y? 70 : -70; },
+        signed_r: function() { return this.C.y < this.A.y? this.r : -this.r; }
     }
 });
 

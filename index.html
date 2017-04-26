@@ -333,90 +333,128 @@
           third circle blocks one or more of the surfing edges?
         </p>
 
-        <p>
-          If a surfing edge is blocked by another circle, we need to throw the
-          edge out.  To detect this case, we use a simple <em>point-line-distance</em>
-          calculation. If the distance from the surfing edge to the obstacle’s
-          center is less than the obstacle’s radius, then the obstacle blocks
-          the surfing edge, and we should throw the edge away.
-        </p>
+        <div id="diagram-surfing-line-of-sight">
 
-        <svg id="diagram-surfing-line-of-sight" width="600" height="300">
-          <defs>
-            <clipPath id="surfing-line-of-sight-clip">
-              <circle :cx="C.x" :cy="C.y" :r="C.r" />
-            </clipPath>
-          </defs>
-          <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
-          <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
-          <line class="surfing-edge invalid-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" clip-path="url(#surfing-line-of-sight-clip)"/>
-          <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
-          <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
-          <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
-          <circle :cx="D.x" :cy="D.y" r="3" fill="black" />
-          <a-label :at="A" :opposite="B" label="A" />
-          <a-label :at="B" :opposite="A" label="B" />
-          <a-label :at="C" :opposite="D" label="C" />
-          <a-label :at="D" :opposite="C" label="D" />
-          <line class="dashed" :x1="C.x" :y1="C.y" :x2="D.x" :y2="D.y" />
-          <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
-          <text x="300" y="275">
-            <template v-if="intersects">Circle blocks line of sight</template>
-            <template v-else>A and B visible from each other</template>
-          </text>
-        </svg>
+          <svg width="600" height="200">
+            <defs>
+              <clipPath id="surfing-line-of-sight-clip">
+                <circle :cx="C.x" :cy="C.y" :r="C.r" />
+              </clipPath>
+            </defs>
+            <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+            <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
+            <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
+            <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
+            <line class="surfing-edge invalid-edge"
+                  :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y"
+                  clip-path="url(#surfing-line-of-sight-clip)"/>
+            <a-label :at="A" :opposite="B" label="A" />
+            <a-label :at="B" :opposite="A" label="B" />
+            <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
+            <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
+            <a-label :at="C" :opposite="E" label="C" />
+            <text x="300" y="25">
+              <template v-if="intersects">Circle blocks line of sight</template>
+              <template v-else>A and B visible from each other</template>
+            </text>
+          </svg>
+
+          <p>
+            If a surfing edge is blocked by another circle, we need to throw the
+            edge out.  To detect this case, we use a simple <em>point-line-distance</em>
+            calculation. If the distance from the surfing edge to the obstacle’s
+            center is less than the obstacle’s radius, then the obstacle blocks
+            the surfing edge, and we should throw the edge away.
+          </p>
+
+          <p>
+            To calculate the distance from point \(C\) to line segment
+            \(\overline{AB}\), use the 
+            <a href="http://paulbourke.net/geometry/pointlineplane/">following
+              method</a>:
+          </p>
+          
+          <p>
+            First, compute \(u\), the fraction of the distance along
+            segment \(\overline{AB}\) at which a perpendicular ascender
+            hits point \(C\):
+          </p>
+
+          <p>
+            \[ u = {(C - A) \cdot (B-A) \over (B-A)\cdot(B-A)}  \]
+          </p>
+
+          <p>
+            Then compute the position \(E\) on \(\overline{AB}\):
+          </p>
+          
+          <p>
+            \[ E = A + \mathrm{clamp}(u, 0, 1) * (B - A) \]
+          </p>
+          
+          <svg width="600" height="300">
+            <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+            <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
+            <line class="surfing-edge invalid-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" clip-path="url(#surfing-line-of-sight-clip)"/>
+            <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
+            <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
+            <g :transform="`translate(0,${dashed_line_offset})`">
+              <!-- horizontal ruler showing 'u' -->
+              <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y"/>
+              <line class="dashed" :x1="A.x" :y1="A.y+15" :x2="A.x" :y2="A.y-15"/>
+              <line class="dashed" :x1="B.x" :y1="B.y+15" :x2="B.x" :y2="B.y-15"/>
+              <circle :cx="A.x" :cy="A.y" :r="3" fill="black" />
+              <circle :cx="B.x" :cy="B.y" :r="3" fill="black" />
+              <circle :cx="C.x" :cy="A.y" :r="3" fill="black" />
+              <text :x="A.x" :y="A.y" dx="-10" dy="5">0</text>
+              <text :x="B.x" :y="B.y" dx="10" dy="5">1</text>
+              <text :x="C.x" :y="A.y" :dy="5 + dashed_line_offset/5">u={{Math.round(100*(C.x-A.x)/(B.x-A.x))/100}}</text>
+            </g>
+            <g transform="translate(-100,0)">
+              <!-- vertical ruler showing 'd' -->
+              <line class="dashed" :x1="A.x" :y1="A.y" :x2="A.x" :y2="C.y"/>
+              <line class="dashed" :x1="A.x-15" :y1="A.y" :x2="A.x+15" :y2="A.y"/>
+              <line class="dashed" :x1="A.x-15" :y1="C.y" :x2="A.x+15" :y2="C.y"/>
+              <text :x="A.x" :y="(A.y+C.y)/2" dx="-20" dy="5">d</text>
+            </g>
+            <g transform="translate(-50,0)">
+              <!-- vertical ruler showing 'r' -->
+              <line class="dashed" :x1="A.x" :y1="C.y" :x2="A.x" :y2="C.y+signed_r"/>
+              <line class="dashed" :x1="A.x-15" :y1="C.y" :x2="A.x+15" :y2="C.y"/>
+              <line class="dashed" :x1="A.x-15" :y1="C.y+signed_r" :x2="A.x+15" :y2="C.y+signed_r"/>
+              <text :x="A.x" :y="C.y+signed_r/2" dx="-20" dy="5">
+                <template v-if="d < r">&lt; r</template>
+                <template v-else>≥ r</template>
+              </text>
+            </g>
+            
+            <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
+            <circle :cx="E.x" :cy="E.y" r="3" fill="black" />
+            <a-label :at="A" :opposite="B" label="A" />
+            <a-label :at="B" :opposite="A" label="B" />
+            <a-label :at="C" :opposite="E" label="C" />
+            <a-label :at="E" :opposite="C" label="E" dx="10" />
+            <line class="dashed" :x1="C.x" :y1="C.y" :x2="E.x" :y2="E.y" />
+            <line class="dashed" :x1="C.x" :y1="C.y" :x2="C.x" :y2="A.y + dashed_line_offset" />
+            <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
+          </svg>
+
+          <p>
+            The distance \(d\) from \(C\) to segment \(\overline{AB}\)
+            is the distance from \(C\) to \(E\):
+
+            \[d = \|E - C\|\]
+
+            Since <span v-if="d < r">\(d < r\), the circle blocks the line of sight
+            from \(A\) to \(B\), and the edge should be thrown out.</span>
+            <span v-else>\(d \ge r\), there is line of sight from \(A\) to
+              \(B\), and the edge should be kept.</span> Try moving
+            the circle to see the case where <span v-if="d < r">\(d \ge r\)</span>
+            <span v-else>\(d < r\)</span>.
+          </p>
+
+        </div>
         
-        <p>
-          To calculate the distance from point \(C\) to line segment \(\overline{AB}\),
-          use the 
-          <a href="http://paulbourke.net/geometry/pointlineplane/">following
-          method</a>:
-        </p>
-        
-        <p>
-          First, compute \(u\), the fraction of the distance along
-          segment \(\overline{AB}\) at which a perpendicular ascender
-          hits point \(C\):
-        </p>
-
-        <p>
-          \[ u = {(C - A) \cdot (B-A) \over (B-A)\cdot(B-A)}  \]
-
-          or equivalently:
-
-          \[u = {{(x_C - x_A)(x_B - x_A) + (y_C - y_A)(y_B - y_A)} \over
-          {(x_B - x_A)(x_B - x_A) + (y_B - y_A)(y_B - y_A)}} \]
-        </p>
-        
-        <!---
-        <p>
-          If \(u\) is outside the range of \([0,1]\), then the perpendicular
-          strikes the \(\overline{AB}\) line somewhere outside the
-          \(\overline{AB}\) segment. By clamping \(u\) inside \([0,1]\), we can
-          find point \(D\), the closest point to \(C\) on the \(\overline{AB}\)
-          segment:
-          \[D = A + clamp(u, 0, 1) * (B - A)\]
-        </p>
-        
-        <p>
-          [<em>We don't need to clamp u if circles can't touch; just test that u is
-          in the range [0,1]; but this might complicate the diagram, rather than simplfying
-          things, unless we actually add the circles to which the diagram's surfing edge is tangent.
-          Then we can restrict the motion of the circle so that it can't touch them, and by extension
-          it can't touch points A or B.</em>]
-        </p>
-        -->
-        
-        <p>
-          Thus, the distance \(d\) from \(C\) to segment
-          \(\overline{AB}\) is the distance from \(C\) to \(D\):
-
-          \[d = \|D - C\|\]
-
-          If \(d\) is less than the radius of the circle, there is no line of sight from
-          one end of the surfing edge to the other, and the edge should be thrown out.
-        </p>
-
         <h3 id="generating-hugging-edges">Generating hugging edges</h3>
 
         <p>
