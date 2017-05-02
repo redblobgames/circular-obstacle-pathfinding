@@ -56,7 +56,7 @@
                 :x2="edge[1].x" :y2="edge[1].y"
                 style="stroke-width: 1px" />
           <circle v-for="node in nodes" class="graph-node"
-                  :cx="node.x" :cy="node.y" :r="circles[node.circle].r == 0? 7 : 2" />
+                  :cx="node.x" :cy="node.y" :r="node.circle.r == 0? 7 : 2" />
           <path :d="d" stroke="hsl(0,50%,50%)" stroke-width="2" fill="none"/>
           <circle v-for="A in path"
                   :cx="A.x" :cy="A.y" :r="3" fill="hsl(0,100%,50%)" stroke="hsl(0,50%,25%)"/>

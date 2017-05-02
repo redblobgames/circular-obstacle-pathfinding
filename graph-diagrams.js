@@ -16,9 +16,9 @@ function line_of_sight(circles, i, P, j, Q) {
 }
 
 
-/** Generate surfing edges, [{circle: int, x: number, y: number},
-                             {circle: int, x: number, y: number}]
-    as well as the set of nodes. Although the edges are bidirectional, 
+/** Generate surfing edges, [{circle: circle, x: number, y: number},
+                             {circle: circle, x: number, y: number}]
+    as well as the set of nodes. Although the edges are bidirectional,
     each is in the list only once.
  */
 function generate_nodes_and_surfing_edges(circles) {
@@ -26,7 +26,7 @@ function generate_nodes_and_surfing_edges(circles) {
 
     // create a new node, or reuse an existing one that's close
     function make_node(i, p) {
-        let node = {circle: i, x: Math.round(p.x), y: Math.round(p.y)};
+        let node = {circle: circles[i], x: Math.round(p.x), y: Math.round(p.y)};
         let key = JSON.stringify(node);
         if (!node_map.has(key)) { node_map.set(key, node); }
         return node_map.get(key);
@@ -63,8 +63,8 @@ function generate_nodes_and_surfing_edges(circles) {
 function generate_hugging_edges(nodes) {
     let buckets = [];
     for (let node of nodes) {
-        if (buckets[node.circle] === undefined) { buckets[node.circle] = []; }
-        buckets[node.circle].push(node);
+        if (buckets[node.circle.id] === undefined) { buckets[node.circle.id] = []; }
+        buckets[node.circle.id].push(node);
     }
 
     let hugging_edges = [];
@@ -84,7 +84,7 @@ function find_path(start_circle, goal_circle, nodes, edges) {
     // TODO: I know this is horribly inefficient but it may not matter; let's see
 
     function circle_to_node(circle) {
-        let nodes_on_circle = nodes.filter((n) => n.circle == circle);
+        let nodes_on_circle = nodes.filter((n) => n.circle.id == circle.id);
         if (nodes_on_circle.length !== 1) { throw "start/goal should be on r=0 circle"; }
         return nodes_on_circle[0];
     }
@@ -99,8 +99,17 @@ function find_path(start_circle, goal_circle, nodes, edges) {
     }
 
     function edge_cost(a, b) {
-        return vec_distance(a, b);
-        // TODO: this isn't correct!! it only works for surfing edges but we also need to consider hugging edges
+        if (a.circle.id == b.circle.id) {
+            // hugging edge
+            let center = a.circle;
+            let a_angle = vec_facing(center, a);
+            let b_angle = vec_facing(center, b);
+            let delta_angle = angle_difference(a_angle, b_angle);
+            return delta_angle * center.r;
+        } else {
+            // surfing edge
+            return vec_distance(a, b);
+        }
     }
 
     function heuristic(node) {
@@ -161,9 +170,9 @@ let graph_all_edges = new Vue({
     el: "#diagram-graph-all-edges",
     data: {
         circles: [ // sorted by r
-            {x: 340, y: 200, r: 90},
-            {x:  80, y: 200, r: 70},
-            {x: 505, y:  65, r: 50}
+            {id: 0, x: 340, y: 200, r: 90},
+            {id: 1, x:  80, y: 200, r: 70},
+            {id: 2, x: 505, y:  65, r: 50}
         ]
     },
     computed: {
@@ -183,14 +192,14 @@ let graph_busy_edges = new Vue({
     el: "#diagram-graph-busy-edges",
     data: {
         circles: [ // sorted by r
-            {x: 180, y: 100, r: 55},
-            {x: 240, y: 230, r: 30},
-            {x: 340, y: 200, r: 30},
-            {x: 505, y:  65, r: 25},
-            {x: 405, y: 255, r: 20},
-            {x:  80, y: 200, r: 20},
-            {x:  20, y:  20, r:  0},
-            {x: 570, y: 280, r:  0}
+            {id: 0, x: 180, y: 100, r: 55},
+            {id: 1, x: 240, y: 230, r: 30},
+            {id: 2, x: 340, y: 200, r: 30},
+            {id: 3, x: 505, y:  65, r: 25},
+            {id: 4, x: 405, y: 255, r: 20},
+            {id: 5, x:  80, y: 200, r: 20},
+            {id: 6, x:  20, y:  20, r:  0},
+            {id: 7, x: 570, y: 280, r:  0}
         ]
     },
     computed: {
@@ -199,7 +208,9 @@ let graph_busy_edges = new Vue({
         nodes: function() { return this.nodes_and_surfing_edges.nodes; },
         hugging_edges: function() { return generate_hugging_edges(this.nodes); },
         edges: function() { return this.surfing_edges.concat(this.hugging_edges); },
-        path: function() { return find_path(this.circles.length-2, this.circles.length-1, this.nodes, this.edges); },
+        path: function() { return find_path(this.circles[this.circles.length-2],
+                                            this.circles[this.circles.length-1],
+                                            this.nodes, this.edges); },
         d: function() {
             let path = this.path;
             let d = [];

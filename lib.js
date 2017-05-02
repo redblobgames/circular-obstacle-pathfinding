@@ -27,3 +27,7 @@ function vec_distance(p, q) {
     const dx = p.x - q.x, dy = p.y - q.y;
     return Math.sqrt(dx*dx + dy*dy);
 }
+
+function angle_difference(a, b) {
+    return Math.abs(b - a) % (2 * Math.PI);
+}
