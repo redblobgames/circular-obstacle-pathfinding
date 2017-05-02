@@ -24,9 +24,11 @@ function line_of_sight(circles, i, P, j, Q) {
 function generate_nodes_and_surfing_edges(circles) {
     let edges = [], node_map = new Map();
 
+    function round(x) { return Math.round(100*x)/100; }
+    
     // create a new node, or reuse an existing one that's close
     function make_node(i, p) {
-        let node = {circle: circles[i], x: Math.round(p.x), y: Math.round(p.y)};
+        let node = {circle: circles[i], x: round(p.x), y: round(p.y)};
         let key = JSON.stringify(node);
         if (!node_map.has(key)) { node_map.set(key, node); }
         return node_map.get(key);
@@ -99,16 +101,17 @@ function find_path(start_circle, goal_circle, nodes, edges) {
     }
 
     function edge_cost(a, b) {
+        // adding 1 to each edge cost to favor fewer nodes in the path
         if (a.circle.id == b.circle.id) {
             // hugging edge
             let center = a.circle;
             let a_angle = vec_facing(center, a);
             let b_angle = vec_facing(center, b);
             let delta_angle = angle_difference(a_angle, b_angle);
-            return delta_angle * center.r;
+            return 1 + delta_angle * center.r;
         } else {
             // surfing edge
-            return vec_distance(a, b);
+            return 1 + vec_distance(a, b);
         }
     }
 
@@ -166,62 +169,93 @@ function no_touching_circle(index) {
 }
 
 
-let graph_all_edges = new Vue({
-    el: "#diagram-graph-all-edges",
-    data: {
-        circles: [ // sorted by r
-            {id: 0, x: 340, y: 200, r: 90},
-            {id: 1, x:  80, y: 200, r: 70},
-            {id: 2, x: 505, y:  65, r: 50}
-        ]
-    },
-    computed: {
-        nodes_and_surfing_edges: function() { return generate_nodes_and_surfing_edges(this.circles); },
-        surfing_edges: function() { return this.nodes_and_surfing_edges.edges; },
-        nodes: function() { return this.nodes_and_surfing_edges.nodes; },
-        hugging_edges: function() { return generate_hugging_edges(this.nodes); },
-        edges: function() { return this.surfing_edges.concat(this.hugging_edges); }
-    },
-    methods: {
-        no_touching_circle: no_touching_circle
-    }
-});
-
-
-let graph_busy_edges = new Vue({
-    el: "#diagram-graph-busy-edges",
-    data: {
-        circles: [ // sorted by r
-            {id: 0, x: 180, y: 100, r: 55},
-            {id: 1, x: 240, y: 230, r: 30},
-            {id: 2, x: 340, y: 200, r: 30},
-            {id: 3, x: 505, y:  65, r: 25},
-            {id: 4, x: 405, y: 255, r: 20},
-            {id: 5, x:  80, y: 200, r: 20},
-            {id: 6, x:  20, y:  20, r:  0},
-            {id: 7, x: 570, y: 280, r:  0}
-        ]
-    },
-    computed: {
-        nodes_and_surfing_edges: function() { return generate_nodes_and_surfing_edges(this.circles); },
-        surfing_edges: function() { return this.nodes_and_surfing_edges.edges; },
-        nodes: function() { return this.nodes_and_surfing_edges.nodes; },
-        hugging_edges: function() { return generate_hugging_edges(this.nodes); },
-        edges: function() { return this.surfing_edges.concat(this.hugging_edges); },
-        path: function() { return find_path(this.circles[this.circles.length-2],
-                                            this.circles[this.circles.length-1],
-                                            this.nodes, this.edges); },
-        d: function() {
-            let path = this.path;
-            let d = [];
-            for (let p of path) {
-                d.push('L', p.x, p.y);
+function make_diagram(element, circles) {
+    circles = circles.map((c, i) => ({id: i, x: c.x, y: c.y, r: c.r}));
+    circles.sort((a, b) => b.r - a.r);
+    
+    return new Vue({
+        el: element,
+        data: {circles: circles},
+        computed: {
+            nodes_and_surfing_edges: function() { return generate_nodes_and_surfing_edges(this.circles); },
+            surfing_edges: function() { return this.nodes_and_surfing_edges.edges; },
+            nodes: function() { return this.nodes_and_surfing_edges.nodes; },
+            hugging_edges: function() { return generate_hugging_edges(this.nodes); },
+            edges: function() { return this.surfing_edges.concat(this.hugging_edges); },
+            path: function() { return find_path(this.circles[this.circles.length-2],
+                                                this.circles[this.circles.length-1],
+                                                this.nodes, this.edges); }
+        },
+        methods: {
+            no_touching_circle: no_touching_circle,
+            d: function(include_surfing, include_hugging) {
+                let path = this.path;
+                let d = [];
+                for (let i = 1; i < path.length; i++) {
+                    if (path[i].circle == path[i-1].circle) {
+                        if (include_hugging) {
+                            let center = path[i].circle;
+                            let sweep = vec_cross(vec_sub(center, path[i-1]), vec_sub(path[i], path[i-1])) < 0 ? 1 : 0;
+                            d.push('M', path[i-1].x, path[i-1].y, 'A', center.r, center.r, 0, 0, sweep, path[i].x, path[i].y);
+                        }
+                    } else {
+                        if (include_surfing) {
+                            d.push('M', path[i-1].x, path[i-1].y, 'L', path[i].x, path[i].y);
+                        }
+                    }
+                }
+                return d.join(' ');
             }
-            d[0] = 'M';
-            return d.join(' ');
         }
-    },
-    methods: {
-        no_touching_circle: no_touching_circle
-    }
-});
+    });
+}
+
+
+let diagram_surfing_edges = make_diagram(
+    "#diagram-surfing-edges",
+    [
+        {x: 340, y: 200, r: 90},
+        {x:  80, y: 200, r: 70},
+        {x: 505, y:  65, r: 50}
+    ]
+);
+
+let diagram_intro = make_diagram(
+    "#diagram-intro", [
+        {x: 113, y: 99, r: 55},
+        {x: 497, y: 243, r: 40},
+        {x: 379, y: 237, r: 40},
+        {x: 330, y: 113, r: 35},
+        {x: 179, y: 190, r: 30},
+        {x: 278, y: 233, r: 30},
+        {x: 30, y: 74, r: 0},
+        {x: 570, y: 280, r: 0}
+    ]
+);
+
+let diagram_path_edges = make_diagram(
+    "#diagram-path-edges", [
+        {x: 86, y: 85, r: 55},
+        {x: 197, y: 38, r: 55},
+        {x: 178, y: 145, r: 45},
+        {x: 467, y: 85, r: 45},
+        {x: 369, y: 137, r: 45},
+        {x: 310, y: 47, r: 45},
+        {x: 17, y: 72, r: 0},
+        {x: 546, y: 97, r: 0}
+    ]
+);
+
+let diagram_final = make_diagram(
+    "#diagram-final", [
+        {x: 180, y: 100, r: 55},
+        {x: 240, y: 230, r: 30},
+        {x: 340, y: 200, r: 30},
+        {x: 505, y:  65, r: 25},
+        {x: 405, y: 255, r: 20},
+        {x:  80, y: 200, r: 20},
+        {x:  20, y:  20, r:  0},
+        {x: 570, y: 280, r:  0}
+    ]
+);
+

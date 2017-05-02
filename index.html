@@ -27,37 +27,22 @@
         <h2 id="navigating-a-forest">Navigating a forest</h2>
 
         <p>
-          The A* pathfinding algorithm is a powerful method for quickly
-          generating optimal paths. Typically, people demonstrate A* navigating
-          grid-based maps such as this one, avoiding obstacles to reach a goal.
+          The A* pathfinding algorithm is a powerful method for
+          quickly generating optimal paths. Typically, people
+          demonstrate A* navigating grid-based maps, but A* isn’t just
+          a grid algorithm! It can work on any graph. We can use A* to
+          find a path through this world of round obstacles.
         </p>
 
-        <p>
-          [grid diagram here?]
-        </p>
-
-        <p>
-          But A* isn’t just a grid algorithm! It can work on any
-          graph. We can use A* to find a path through this world of
-          round obstacles.
-        </p>
-
-        <svg id="diagram-graph-busy-edges" width="600" height="300">
+        <svg id="diagram-intro" width="600" height="300">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A" :constraint="no_touching_circle(index)">
-            <circle :r="Math.max(A.r, 5)" />
+            <circle :r="Math.max(A.r, 10)" />
           </a-draggable>
           <circle v-for="A in circles"
-                  class="hugging-edge"
                   :cx="A.x" :cy="A.y" :r="A.r"
-                  style="stroke-width: 2px" />
-          <line v-for="edge in surfing_edges" class="surfing-edge"
-                :x1="edge[0].x" :y1="edge[0].y"
-                :x2="edge[1].x" :y2="edge[1].y"
-                style="stroke-width: 1px" />
-          <circle v-for="node in nodes" class="graph-node"
-                  :cx="node.x" :cy="node.y" :r="node.circle.r == 0? 7 : 2" />
-          <path :d="d" stroke="hsl(0,50%,50%)" stroke-width="2" fill="none"/>
+                  style="fill: none; stroke: black; stroke-width: 2px" />
+          <path :d="d(true, true)" stroke="hsl(0,50%,50%)" stroke-width="2" fill="none"/>
           <circle v-for="A in path"
                   :cx="A.x" :cy="A.y" :r="3" fill="hsl(0,100%,50%)" stroke="hsl(0,50%,25%)"/>
         </svg>
@@ -113,11 +98,11 @@
         <h2 id="graph">Graph</h2>
 
         <p>
-          A* works on a <em>graph</em>: a collection of <em>nodes</em> connected by
-          <em>edges</em>. In a
-          grid-based world, each node represents an individual grid location,
-          while each edge represents a connection to a neighboring location to
-          the north, south, east or west.
+          A* works on a <em>graph</em>: a collection of <em>nodes</em> connected
+          by <em>edges</em>. In a grid-based world, each node represents
+          an individual grid location, while each edge represents a
+          connection to a neighboring location to the north, south,
+          east or west.
         </p>
 
         <p>
@@ -146,34 +131,22 @@
             <circle class="graph-node" cx="10" cy="10" r="8" />
           </svg>.
 
-          A path through the graph is a series of nodes connected by edges
-
-          <svg class="plain" width="10em" height="1em" viewBox="0 0 200 20">
-            <path class="surfing-edge" d="M 5,18 L 60,18" />
-            <path class="hugging-edge" d="M 60,18 A 50,50 0 0 1 140,18" />
-            <path class="surfing-edge" d="M 140,18 L 195,18" />
-            <circle class="graph-node" cx="5" cy="18" r="5" />
-            <circle class="graph-node" cx="60" cy="18" r="5" />
-            <circle class="graph-node" cx="140" cy="18" r="5" />
-            <circle class="graph-node" cx="195" cy="18" r="5" />
-          </svg>.
-          
-          [<em>Note: the surfing edges in this little picture are not
-          tangent to the hugging edge, and I think this might be
-          misleading.</em>]
+          A path through the graph is a series of nodes connected by edges:
         </p>
 
-        <svg id="diagram-one-path" width="600" height="300">
-          <circle cx="340" cy="200" r="90" fill="none" stroke="black" class="hugging-edge"></circle>
-          <line x1="75" y1="270" x2="333" y2="290" class="surfing-edge"></line>
-          <line x1="543" y1="97" x2="409" y2="258" class="surfing-edge"></line>
-          <circle cx="75" cy="270" r="5" class="graph-node"></circle>
-          <circle cx="333" cy="290" r="5" class="graph-node"></circle>
-          <circle cx="543" cy="97" r="5" class="graph-node"></circle>
-          <circle cx="409" cy="258" r="5" class="graph-node"></circle>
-          <text y="20" x="300">PLACEHOLDER</text>
+        <svg id="diagram-path-edges" width="600" height="170">
+          <a-draggable v-for="(A, index) in circles"
+                       :key="index" :model="A" :constraint="no_touching_circle(index)">
+            <circle :r="Math.max(A.r, 10)" />
+          </a-draggable>
+          <circle v-for="A in circles"
+                  :cx="A.x" :cy="A.y" :r="A.r"
+                  style="fill: none; stroke: black; stroke-opacity: 0.5; stroke-width: 0.5px" />
+          <path class="surfing-edge" :d="d(true, false)" style="stroke-width: 3px" />
+          <path class="hugging-edge" :d="d(false, true)" style="stroke-width: 5px" />
+          <circle v-for="A in path" class="graph-node" :cx="A.x" :cy="A.y" :r="3" />
         </svg>
-        
+
         <p>
           Both segments and arcs act as edges in the graph. We’ll call the
           segments <em>surfing edges</em>, because the path uses them to surf between
@@ -186,7 +159,7 @@
           graph: generate all of the possible surfing and hugging edges.
         </p>
 
-        <svg id="diagram-graph-all-edges" width="600" height="300">
+        <svg id="diagram-surfing-edges" width="600" height="300">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A" :constraint="no_touching_circle(index)">
             <circle :r="Math.max(A.r, 5)" />
@@ -455,6 +428,18 @@
 
         </div>
         
+        <h3 id="nodes">Generating Nodes</h3>
+
+        <p>
+          Other that the start and end points, the graph’s nodes are
+          the endpoints of the surfing edges. A
+          node&mdash;a surfing edge endpoint&mdash;has several edges
+          leading out of it: the surfing edge itself, plus all of the
+          hugging edges generated by that surfing edge.
+        </p>
+
+        [Need to work on the flow]
+        
         <h3 id="generating-hugging-edges">Generating hugging edges</h3>
 
         <p>
@@ -495,17 +480,6 @@
           circle.
         </p>
 
-        <h3 id="nodes">Nodes</h3>
-
-        <p>
-          Other that the start and end points, the graph’s nodes are
-          the endpoints of the surfing edges. As described above, each
-          surfing edge generates hugging edges at its endpoints. A
-          node&mdash;a surfing edge endpoint&mdash;has several edges
-          leading out of it: the surfing edge itself, plus all of the
-          hugging edges generated by that surfing edge.
-        </p>
-
         <h2 id="putting-it-all-together">Putting it all together</h2>
 
         <p>
@@ -514,9 +488,27 @@
           produce a graph and run pathfinding using the A* algorithm.
         </p>
 
-        <p>
-          [Diagram: full demo]
-        </p>
+        <svg id="diagram-final" width="600" height="300">
+          <a-draggable v-for="(A, index) in circles"
+                       :key="index" :model="A" :constraint="no_touching_circle(index)">
+            <circle :r="Math.max(A.r, 5)" />
+          </a-draggable>
+          <circle v-for="A in circles"
+                  :cx="A.x" :cy="A.y" :r="A.r"
+                  class="hugging-edge"
+                  style="stroke-width: 1px" />
+          <line v-for="edge in surfing_edges" class="surfing-edge"
+                :x1="edge[0].x" :y1="edge[0].y"
+                :x2="edge[1].x" :y2="edge[1].y"
+                style="stroke-width: 1px" />
+          <circle v-for="node in nodes" class="graph-node"
+                  :cx="node.x" :cy="node.y" :r="node.circle.r == 0? 7 : 2" />
+          <path class="surfing-edge" :d="d(true, false)" stroke-width="2" />
+          <path class="hugging-edge" :d="d(false, true)" stroke-width="2" />
+          <circle v-for="A in path"
+                  :cx="A.x" :cy="A.y" :r="3" fill="hsl(0,100%,50%)" stroke="hsl(0,50%,25%)"/>
+        </svg>
+
       </div>
     </section>
 

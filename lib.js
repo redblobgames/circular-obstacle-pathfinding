@@ -13,7 +13,15 @@ function vec_add(p, q) {
 function vec_sub(p, q) {
     return {x: p.x - q.x, y: p.y - q.y};
 }
-    
+
+function vec_dot(p, q) {
+    return p.x * q.x + p.y * q.y;
+}
+
+function vec_cross(p, q) {
+    return p.x * q.y - p.y * q.x;
+}
+
 function vec_interpolate(p, q, t) {
     return {x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t};
 }
