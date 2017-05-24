@@ -146,6 +146,10 @@ let surfing_line_of_sight = new Vue({
         d: function() { return this.calculation.d; },
         r: function() { return this.C.r; },
         E: function() { return vec_add(this.calculation.E, {x: 0, y: 1e-6}); /* need epsilon for label placement when C.y == 0 */ },
+        F: function() { // the end of the line showing 'r'
+            let angle = Math.PI * 0.75 + vec_facing(this.C, this.E);
+            return vec_add(this.C, vec_polar(this.C.r, angle));
+        },
         dashed_line_offset: function() { return this.C.y < this.A.y? 70 : -70; },
         signed_r: function() { return this.C.y < this.A.y? this.r : -this.r; }
     }

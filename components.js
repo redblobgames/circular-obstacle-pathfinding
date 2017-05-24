@@ -4,6 +4,11 @@
 
 const TEXT_OFFSET = {x: 0, y: 5};
 
+/** Label placed on the opposite side from a reference point.
+ *  e.g. if R is the reference and L is the label for point P,
+ *  R P --> place L on the right, R P L
+ *  P R --> place L on the left, L P R
+ */
 Vue.component('a-label', {
     props: ['at', 'opposite', 'label', 'dx', 'dy'],
     template: '<text :x="at.x" :y="at.y" :dx="shove.x" :dy="shove.y">{{ label }}</text>',
@@ -12,6 +17,26 @@ Vue.component('a-label', {
             const angle = vec_facing(this.at, this.opposite);
             return vec_add(vec_add(TEXT_OFFSET, {x: parseFloat(this.dx) || 0, y: parseFloat(this.dy) || 0}),
                            vec_polar(-15, angle));
+        }
+    }
+});
+
+
+/** Small dashed tick perpendicular to a line,
+ *  from t0 to t1 units relative to the at --> opposite line,
+ *  e.g. t0 = -5, t1 = +5 will make a 10 unit long dashed line
+ *  centered at 'at'
+ */
+Vue.component('a-tick', {
+    props: ['at', 'opposite', 't0', 't1'],
+    template: `
+         <line class="dashed"
+               :x1="this.at.x + d.x*(t0||-15)" :y1="this.at.y + d.y*(t0||-15)"
+               :x2="this.at.x + d.x*(t1||+15)" :y2="this.at.y + d.y*(t1||+15)"/>`,
+    computed: {
+        d: function() {
+            return vec_normalize({x: this.opposite.y - this.at.y,
+                                  y: this.at.x - this.opposite.x});
         }
     }
 });

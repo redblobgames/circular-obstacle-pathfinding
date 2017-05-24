@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8"/>
-    <link rel="stylesheet" type="text/css" media="screen" href="style.css"/>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
     <title>Circular Obstacle Pathfinding</title>
-    <meta name="description" content="Pathfinding around a set of circular obstacles"/>
+    <meta name="description" content="Pathfinding around a set of circular obstacles" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
@@ -42,9 +42,9 @@
           <circle v-for="A in circles"
                   :cx="A.x" :cy="A.y" :r="A.r"
                   style="fill: none; stroke: black; stroke-width: 2px" />
-          <path :d="d(true, true)" stroke="hsl(0,50%,50%)" stroke-width="2" fill="none"/>
+          <path :d="d(true, true)" stroke="hsl(0,50%,50%)" stroke-width="2" fill="none" />
           <circle v-for="A in path"
-                  :cx="A.x" :cy="A.y" :r="3" fill="hsl(0,100%,50%)" stroke="hsl(0,50%,25%)"/>
+                  :cx="A.x" :cy="A.y" :r="3" fill="hsl(0,100%,50%)" stroke="hsl(0,50%,25%)" />
         </svg>
 
         <p>
@@ -320,7 +320,7 @@
             <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
             <line class="surfing-edge invalid-edge"
                   :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y"
-                  clip-path="url(#surfing-line-of-sight-clip)"/>
+                  clip-path="url(#surfing-line-of-sight-clip)" />
             <a-label :at="A" :opposite="B" label="A" />
             <a-label :at="B" :opposite="A" label="B" />
             <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
@@ -368,14 +368,14 @@
           <svg width="600" height="300">
             <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
             <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
-            <line class="surfing-edge invalid-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" clip-path="url(#surfing-line-of-sight-clip)"/>
+            <line class="surfing-edge invalid-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" clip-path="url(#surfing-line-of-sight-clip)" />
             <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
             <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
             <g :transform="`translate(0,${dashed_line_offset})`">
               <!-- horizontal ruler showing 'u' -->
-              <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y"/>
-              <line class="dashed" :x1="A.x" :y1="A.y+15" :x2="A.x" :y2="A.y-15"/>
-              <line class="dashed" :x1="B.x" :y1="B.y+15" :x2="B.x" :y2="B.y-15"/>
+              <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+              <a-tick :at="A" :opposite="B" />
+              <a-tick :at="B" :opposite="A" />
               <circle :cx="A.x" :cy="A.y" :r="3" fill="black" />
               <circle :cx="B.x" :cy="B.y" :r="3" fill="black" />
               <circle :cx="C.x" :cy="A.y" :r="3" fill="black" />
@@ -383,30 +383,23 @@
               <text :x="B.x" :y="B.y" dx="10" dy="5">1</text>
               <text :x="C.x" :y="A.y" :dy="5 + dashed_line_offset/5">u={{Math.round(100*(C.x-A.x)/(B.x-A.x))/100}}</text>
             </g>
-            <g transform="translate(-100,0)">
-              <!-- vertical ruler showing 'd' -->
-              <line class="dashed" :x1="A.x" :y1="A.y" :x2="A.x" :y2="C.y"/>
-              <line class="dashed" :x1="A.x-15" :y1="A.y" :x2="A.x+15" :y2="A.y"/>
-              <line class="dashed" :x1="A.x-15" :y1="C.y" :x2="A.x+15" :y2="C.y"/>
-              <text :x="A.x" :y="(A.y+C.y)/2" dx="-20" dy="5">d</text>
+            <g>
+              <!-- ruler showing 'd' -->
+              <a-tick :at="C" :opposite="E" />
+              <a-tick :at="E" :opposite="C" />
+              <text :x="(C.x+E.x)/2" :y="(C.y+E.y)/2" dx="15" dy="5">d</text>
             </g>
-            <g transform="translate(-50,0)">
-              <!-- vertical ruler showing 'r' -->
-              <line class="dashed" :x1="A.x" :y1="C.y" :x2="A.x" :y2="C.y+signed_r"/>
-              <line class="dashed" :x1="A.x-15" :y1="C.y" :x2="A.x+15" :y2="C.y"/>
-              <line class="dashed" :x1="A.x-15" :y1="C.y+signed_r" :x2="A.x+15" :y2="C.y+signed_r"/>
-              <text :x="A.x" :y="C.y+signed_r/2" dx="-20" dy="5">
-                <template v-if="d < r">&lt; r</template>
-                <template v-else>≥ r</template>
-              </text>
+            <g>
+              <!-- ruler showing 'r' -->
+              <line class="dashed" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" />
+              <text :x="0.2*C.x+0.8*F.x" :y="0.2*C.y+0.8*F.y" dx="-5" dy="10">r</text>
             </g>
-            
             <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
             <circle :cx="E.x" :cy="E.y" r="3" fill="black" />
             <a-label :at="A" :opposite="B" label="A" />
             <a-label :at="B" :opposite="A" label="B" />
             <a-label :at="C" :opposite="E" label="C" />
-            <a-label :at="E" :opposite="C" label="E" dx="10" />
+            <a-label :at="E" :opposite="C" label="E" dx="-10" />
             <line class="dashed" :x1="C.x" :y1="C.y" :x2="E.x" :y2="E.y" />
             <line class="dashed" :x1="C.x" :y1="C.y" :x2="C.x" :y2="A.y + dashed_line_offset" />
             <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
@@ -449,12 +442,12 @@
         </p>
 
         <svg id="diagram-hugging-edge" width="600" height="300">
+          <a-draggable :model="A"><circle r="10" /></a-draggable>
+          <a-draggable :model="E"><circle r="10" /></a-draggable>
           <template v-if="valid">
             <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
             <line class="surfing-edge" :x1="D.x" :y1="D.y" :x2="E.x" :y2="E.y" />
           </template>
-          <a-draggable :model="A"><circle r="5" /></a-draggable>
-          <a-draggable :model="E"><circle r="5" /></a-draggable>
           <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
           <template v-if="valid">
             <line class="dashed" :x1="C.x" :y1="C.y" :x2="B.x" :y2="B.y" />
@@ -491,7 +484,7 @@
         <svg id="diagram-final" width="600" height="300">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A" :constraint="no_touching_circle(index)">
-            <circle :r="Math.max(A.r, 5)" />
+            <circle :r="Math.max(A.r, 10)" />
           </a-draggable>
           <circle v-for="A in circles"
                   :cx="A.x" :cy="A.y" :r="A.r"
@@ -500,13 +493,13 @@
           <line v-for="edge in surfing_edges" class="surfing-edge"
                 :x1="edge[0].x" :y1="edge[0].y"
                 :x2="edge[1].x" :y2="edge[1].y"
-                style="stroke-width: 1px" />
+                style="stroke: hsl(260,10%,80%);stroke-width: 1px" />
           <circle v-for="node in nodes" class="graph-node"
                   :cx="node.x" :cy="node.y" :r="node.circle.r == 0? 7 : 2" />
           <path class="surfing-edge" :d="d(true, false)" stroke-width="2" />
           <path class="hugging-edge" :d="d(false, true)" stroke-width="2" />
           <circle v-for="A in path"
-                  :cx="A.x" :cy="A.y" :r="3" fill="hsl(0,100%,50%)" stroke="hsl(0,50%,25%)"/>
+                  :cx="A.x" :cy="A.y" :r="3" fill="hsl(0,100%,50%)" stroke="hsl(0,50%,25%)" />
         </svg>
 
       </div>
@@ -883,7 +876,7 @@
       <script>
         renderMathInElement(document.body);
       </script>
-      <script src="https://unpkg.com/vue"></script>
+      <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
       <script src="lib.js"></script>
       <script src="components.js"></script>
       <script src="belt-problem.js"></script>

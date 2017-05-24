@@ -31,9 +31,17 @@ function vec_facing(p, q) {
     return Math.atan2(dy, dx);
 }
 
+function vec_length(p) {
+    return Math.sqrt(p.x*p.x + p.y*p.y);
+}
+
 function vec_distance(p, q) {
-    const dx = p.x - q.x, dy = p.y - q.y;
-    return Math.sqrt(dx*dx + dy*dy);
+    return vec_length(vec_sub(p, q));
+}
+
+function vec_normalize(p) {
+    let d = vec_length(p) || 1e-6; // avoid divide by 0
+    return {x: p.x / d, y: p.y / d};
 }
 
 function angle_difference(a, b) {
