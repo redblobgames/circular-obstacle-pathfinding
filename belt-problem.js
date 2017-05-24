@@ -186,3 +186,18 @@ let circle_overlap = new Vue({
         }
     }
 });
+
+
+let bitangents_overlap = new Vue({
+    el: "#diagram-bitangents-overlap",
+    data: {
+        A: {x: 150, y: 150, r: 130},
+        B: {x: 450, y: 150, r: 50}
+    },
+    computed: {
+        overlapping: function() { return vec_distance(this.A, this.B) < this.A.r + this.B.r; },
+        containing: function() { return vec_distance(this.A, this.B) < this.A.r - this.B.r; },
+        internal: function() { return new InternalBitangents(this.A, this.B); },
+        external: function() { return new ExternalBitangents(this.A, this.B); }
+    }
+});
