@@ -19,10 +19,14 @@ svg.plain .surfing-edge, svg.plain .hugging-edge { stroke-width: 4px; }
 
 /* Fonts */
 
-body, text {
+body, text.plain {
     font-family: "Source Sans Pro", "Open Sans", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Tahoma", sans-serif;
     font-size: 17px;
-}    
+}
+text {
+    font-family: "KaTeX_Math", "Times New Roman", serif;
+    font-size: 18px;
+}
 tt, code, kbd, samp, pre {
     font-family: "Source Code Pro", monospace, serif, "Segoe UI Symbol", "Symbol";
     font-size: 13px;

@@ -231,7 +231,7 @@
             <a-label :at="theta_BF" :opposite="B" label="θ" />
           </template>
           <template v-else="">
-            <text x="300" y="15">Overlapping circles have no bitangents</text>
+            <text class="plain" x="300" y="15">Overlapping circles have no bitangents</text>
           </template>
         </svg>
 
@@ -285,7 +285,7 @@
             <a-label :at="theta_BF" :opposite="B" label="θ" />
           </template>
           <template v-else="">
-            <text x="300" y="15">Smaller circle entirely contained in larger one</text>
+            <text class="plain" x="300" y="15">Smaller circle entirely contained in larger one</text>
           </template>
         </svg>
 
@@ -326,7 +326,7 @@
             <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
             <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
             <a-label :at="C" :opposite="E" label="C" />
-            <text x="300" y="25">
+            <text class="plain" x="300" y="25">
               <template v-if="intersects">Circle blocks line of sight</template>
               <template v-else>A and B visible from each other</template>
             </text>
@@ -552,6 +552,9 @@
           inputs, it's important to check for this case first.
         </p>
 
+        [it's not important *because* arccoside is undefined; it's
+        important because the bitangents don't exist]
+        
         <svg id="diagram-bitangents-overlap" width="600" height="300">
           <defs>
             <clipPath id="overlap-clip">
@@ -580,18 +583,18 @@
               <line class="surfing-edge"
                     :x1="internal.D.x" :y1="internal.D.y"
                     :x2="internal.E.x" :y2="internal.E.y" />
-              <text x="300" y="15">Circles don't overlap: both external and internal bitangents</text>
+              <text class="plain" x="300" y="15">Circles don't overlap: both external and internal bitangents</text>
             </template>
             <template v-else>
-              <text x="300" y="15">Circles overlap: external bitangents only</text>
+              <text class="plain" x="300" y="15">Circles overlap: external bitangents only</text>
             </template>
           </template>
           <template v-else>
-            <text x="300" y="15">Small circle contained by large one: no bitangents</text>
+            <text class="plain" x="300" y="15">Small circle contained by large one: no bitangents</text>
           </template>
         </svg>
         
-        <h4 id="hugging-line-of-sight">Surfing edge line of sight</h4>
+        <h4 id="hugging-line-of-sight">Surfing edge line of sight - MERGE ABOVE</h4>
 
         <p>
           When obstacles are allowed to touch or overlap, new cases
@@ -689,7 +692,7 @@
           <a-label v-if="valid" :at="theta_AD" :opposite="A" label="θ" />
           <a-label v-if="valid" :at="D" :opposite="C" label="D" />
           <a-label v-if="valid" :at="E" :opposite="C" label="E" />
-          <text x="300" y="275">
+          <text class="plain" x="300" y="275">
             <template v-if="containing">Larger circle contains smaller one</template>
             <template v-if="!overlapping">Circles don't overlap</template>
           </text>
@@ -723,10 +726,9 @@
           through a forest of round obstacles is identical to moving a point
           through that same forest with one change: each obstacle has its radius
           increased by <em>r</em>. This is an extremely simple application of
-          <em>Minkowski addition</em>, and it’s so effective for this case that from
-          now on we’ll ignore the radius of the moving object. If it has a
-          radius larger than zero, we’ll just increase the size of the obstacles
-          before we start.
+          <em>Minkowski addition</em>. If it has a radius larger than
+          zero, we’ll just increase the size of the obstacles before
+          we start.
         </p>
 
         <h3 id="delayed-edge-generation">Delayed edge generation</h3>
@@ -751,7 +753,7 @@
           as we proceed through the A* algorithm, rather than doing all of the
           work up front. If A* finds a path quickly, we'll generate only a small
           part of the graph. We do this by moving edge generation to the
-          neighbors() function.
+          <code>neighbors()</code> function.
         </p>
 
         <p>
@@ -762,14 +764,16 @@
         
         <p>
           The next case is when A* has just arrived at point \(p\) on on the
-          edge of obstacle \(C\) along a surfing edge. Neighbors() needs to
-          return the hugging edges leading from \(p\). To do this determine
-          which surfing edges leave the obstacle by computing the bitangents
-          between \(C\) and every other obstacle, throwing away any that do not
-          have line of sight. Then find all the hugging edges that connect \(p\)
-          to these surfing edges, discarding those that are blocked by other
-          obstacles. Return all of these hugging edges, saving the surfing edges
-          for return in a subsequent neighbors() call.
+          edge of obstacle \(C\) along a surfing edge: <code>neighbors()</code>
+          needs to return the hugging edges leading from \(p\). To do
+          this determine which surfing edges leave the obstacle by
+          computing the bitangents between \(C\) and every other
+          obstacle, throwing away any that do not have line of sight.
+          Then find all the hugging edges that connect \(p\) to these
+          surfing edges, discarding those that are blocked by other
+          obstacles. Return all of these hugging edges, saving the
+          surfing edges for return in a subsequent <code>neighbors()</code>
+          call.
         </p>
         
         <p>
@@ -779,20 +783,7 @@
           set of edges can just be looked up and returned.
         </p>
 
-        <h3>Store path tree in an array</h3>
-
-        <p>
-          Don't store each path separately; put them in a tree stored in an array.
-        </p>
-
-        <h3 id="cull-longer-paths-to-same-place">Cull longer paths to same place</h3>
-
-        <p>
-          Before putting new paths into the priority queue, see if we’ve been to
-          this spot going the same direction for a cheaper cost already.
-        </p>
-
-	<h3> Cull cusped hugging edges</h3>
+	<h3>Cull cusped hugging edges</h3>
         
         <p>
           Hugging edges connect surfing edges which touch the same circle, but
@@ -869,6 +860,8 @@
           surfing edge.
         </p>
 
+        [amit not sure what this means]
+        
         <h3 id="polygonal-obstacles">Polygonal obstacles</h3>
 
         <p>
