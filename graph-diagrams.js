@@ -169,7 +169,7 @@ function no_touching_circle(index) {
 }
 
 
-function make_diagram(element, circles) {
+function make_path_diagram(element, circles) {
     circles = circles.map((c, i) => ({id: i, x: c.x, y: c.y, r: c.r}));
     circles.sort((a, b) => b.r - a.r);
     
@@ -211,7 +211,7 @@ function make_diagram(element, circles) {
 }
 
 
-let diagram_surfing_edges = make_diagram(
+let diagram_surfing_edges = make_path_diagram(
     "#diagram-surfing-edges",
     [
         {x: 340, y: 200, r: 90},
@@ -220,7 +220,7 @@ let diagram_surfing_edges = make_diagram(
     ]
 );
 
-let diagram_intro = make_diagram(
+let diagram_intro = make_path_diagram(
     "#diagram-intro", [
         {x: 113, y: 99, r: 55},
         {x: 497, y: 243, r: 40},
@@ -233,7 +233,7 @@ let diagram_intro = make_diagram(
     ]
 );
 
-let diagram_path_edges = make_diagram(
+let diagram_path_edges = make_path_diagram(
     "#diagram-path-edges", [
         {x: 86, y: 85, r: 55},
         {x: 197, y: 38, r: 55},
@@ -246,7 +246,7 @@ let diagram_path_edges = make_diagram(
     ]
 );
 
-let diagram_final = make_diagram(
+let diagram_final = make_path_diagram(
     "#diagram-final", [
         {x: 180, y: 100, r: 55},
         {x: 240, y: 230, r: 30},
@@ -259,3 +259,22 @@ let diagram_final = make_diagram(
     ]
 );
 
+
+let rotation1 = new Vue({
+    el: "#diagram-rotation-1",
+    data: {
+        circle: {x: 300, y: 150, r: 100},
+        edges: [
+            {label: 'A', x: 100, y: 110, dir: 'left', marker: 'start'},
+            {label: 'B', x: 500, y: 110, dir: 'right', marker: 'end'},
+            {label: 'C', x: 500, y: 190, dir: 'left', marker: 'end'},
+            {label: 'D', x: 100, y: 190, dir: 'right', marker: 'end'}
+        ]
+    },
+    methods: {
+        center: function(edge) {
+            let bitangent = new ExternalBitangents(this.circle, {x: edge.x, y: edge.y, r: 0});
+            return bitangent[edge.dir == 'left'? 'D' : 'C'];
+        }
+    }
+});

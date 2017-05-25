@@ -791,68 +791,96 @@
           used in any optimal path. We can speed up the algorithm by eliminating
           them.
         </p>
+
+        <p>
+          An optimal path through the forest of obstacles always
+          consists of alternating surfing and hugging edges. Suppose
+          we're entering at node \(A\) and are trying to decide how to
+          exit:
+        </p>
+
+        <svg id="diagram-rotation-1" width="600" height="300">
+          <defs>
+            <marker id="arrowhead-start" viewBox="0 0 10 10" refX="-3" refY="5" markerUnits="strokeWidth" markerWidth="5" markerHeight="4" orient="auto">
+              <path d="M 10 0 L 0 5 L 10 10 z" />
+            </marker>
+            <marker id="arrowhead-end" viewBox="0 0 10 10" refX="7" refY="5" markerUnits="strokeWidth" markerWidth="5" markerHeight="4" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+          </defs>
+          <circle class="hugging-edge" :cx="circle.x" :cy="circle.y" :r="circle.r"
+                  style="fill:hsl(240,10%,90%)" />
+          <template v-for="edge in edges">
+            <a-draggable :model="edge"><circle r="10" /></a-draggable>
+            <line class="surfing-edge"
+                  :x1="center(edge).x" :y1="center(edge).y"
+                  :x2="edge.x" :y2="edge.y"
+                  :marker-start="edge.marker == 'start' && 'url(#arrowhead-start)'"
+                  :marker-end="edge.marker == 'end' && 'url(#arrowhead-end)'"
+            />
+            <circle class="graph-node" :cx="center(edge).x" :cy="center(edge).y" r="5" />
+            <a-label :at="center(edge)" :opposite="circle" :label="edge.label" />
+          </template>
+        </svg>
         
         <p>
-          An optimal path through the forest of obstacles always consists of
-          alternating surfing and hugging edges. A surfing edge arrives at an
-          obstacle on either its left or right side. In an optimal path, the
-          hugging edge <em>always continues along the same side of the
-          obstacle</em> until it reaches the surfing edge that it will exit the
-          obstacle along. Additionally, the exit surfing edge continues the same
-          direction of travel as the hugging edge. As the optimal path
-          alternates between surfing and hugging edges, there is no change of
-          direction at nodes.
+          Entering through \(A\) means we're going <em>clockwise</em>\(\circlearrowright\).
+          We must exit through a node that keeps us going clockwise\(\circlearrowright\),
+          so we can only exit through node \(B\) or \(D\). Exiting through \(C\) creates
+          a <em>cusp</em>\(\curlywedge\) in the path, which will never
+          be optimal. We want to filter out these cusped edges.
+        </p>
+        
+        <p>
+          First note that A* already treats each undirected 
+          edge \(P \longrightarrow Q\) as two directed edges, \(P
+          \longrightarrow Q\) and \(Q \longrightarrow P\). We can take
+          advantage of this by annotating the edges with directions.
+          First we annotate the nodes with a direction (clockwise
+          \(\circlearrowright\) or counterclockwise
+          \(\circlearrowleft\)). This makes the surfing edges have the
+          form \(P,p \longrightarrow Q,\hat{q}\) and \(Q,q
+          \longrightarrow P,\hat{p}\), where \(p\) and \(q\) are
+          directions, and \(\hat{x}\) means the opposite direction of
+          \(x\).
         </p>
 
         <p>
-          [Static diagram illustrating continuous flow of the path]
+          In our diagram, node \(A\) would become two nodes,
+          \(A\circlearrowright\) and \(A\circlearrowleft\), and have
+          an incoming edge \(\longrightarrow A\circlearrowright\) and
+          an outgoing edge \(A\circlearrowleft \longrightarrow\).
         </p>
-
+        
         <p>
-          We previously defined hugging edges as all the arcs which connect
-          endpoints of surfing edges on a given circle. But this simple
-          definition includes many hugging edges that represent direction
-          changes, or <em>cusps</em>. We want to avoid hugging edges like these:
+          We next split the undirected hugging edges \(P
+          \longleftrightarrow Q\) into directed edges
+          \(P\circlearrowright \longrightarrow Q\circlearrowright\)
+          and \(P\circlearrowleft \longrightarrow Q\circlearrowleft\).
+          This is where the filtering happens: we <em>don't</em> include
+          \(P\circlearrowright \longrightarrow Q\circlearrowleft\) and
+          \(P\circlearrowleft \longrightarrow Q\circlearrowright\).
+          Those edges introduce the cusps\(\curlywedge\) that are never
+          in an optimal path.
         </p>
-
+        
         <p>
-          [Static diagram showing bad hugging edges]
+          If the path entered through \(A\circlearrowright\) then it
+          must exit through a \(\circlearrowright\) node, which would
+          be either the \(B\circlearrowright \longrightarrow\) edge or
+          the \(D\circlearrowright \longrightarrow\) edge. It can't
+          leave through \(C\circlearrowleft \longrightarrow\) or
+          \(A\circlearrowleft \longrightarrow\) because they rotate the
+          wrong way.
         </p>
 
+        [Diagram similar to previous one, with valid/invalid surfing/hugging edges?]
+        
         <p>
-          It's okay to put these hugging edges into the graph&mdash;A* will
-          never include them in the optimal path&mdash;but by keeping them out
-          of the graph, we make the algorithm more efficient.
+          By filtering these cusped hugging edges out of the graph, we
+          make the algorithm more efficient.
         </p>
-
-        <p>
-          To identify the cusped hugging edges, we can classify each surfing edge
-          touching a circle into one of two types: <em>left</em> edges
-          and <em>right</em> edges. Viewed from the endpoint which is not
-          touching the circle, left surfing edges intersect the left side of the
-          circle, while right edges touch the circle on the right side. Every
-          hugging edge connects a left surfing edge and a right surfing edge; if
-          one were to traverse the hugging edge from the left surfing edge to
-          the right surfing edge, travel around the circle would be clockwise.
-        </p>
-
-        <p>
-          [Interactive diagram: three draggable circles with all bitangents
-          drawn, with each bitangent endpoint drawn red or blue depending on
-          whether they are left or right edges on that circle.]
-        </p>
-
-        <p>
-          With this distinction, we can find the set of non-cusped hugging edges
-          for a circle. First collect all the surfing edges which touch the
-          circle and classify them as left or right. Then for each left surfing
-          edge endpoint, generate a hugging edge to each right surfing edge
-          endpoint, traversing the circle clockwise. Because the graph is
-          undirected, each of these hugging edges also implies the existence of
-          another hugging edge which starts at a right edge, traverses around
-          the circle anticlockwise, and terminates on a left edge.
-        </p>
-
+         
         <h3 id="crossing-edge-culling">Crossing edge culling</h3>
 
         <p>

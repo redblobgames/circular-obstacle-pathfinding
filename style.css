@@ -17,6 +17,11 @@ svg.plain .surfing-edge, svg.plain .hugging-edge { stroke-width: 4px; }
 .draggable circle { fill: hsl(240,10%,90%); }
 .dragging circle { fill: hsl(240,10%,88%); }
 
+#diagram-rotation-1 .surfing-edge { stroke-width: 4px; }
+#diagram-rotation-1 .surfing-edge[marker-start] { stroke: hsl(0,50%,50%); }
+#arrowhead-start { fill: hsl(0,50%,50%); }
+#arrowhead-end { fill: hsl(260,30%,60%); }
+
 /* Fonts */
 
 body, text.plain {
