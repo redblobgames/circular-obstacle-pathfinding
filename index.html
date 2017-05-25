@@ -835,43 +835,51 @@
           First note that A* already treats each undirected 
           edge \(P \longrightarrow Q\) as two directed edges, \(P
           \longrightarrow Q\) and \(Q \longrightarrow P\). We can take
-          advantage of this by annotating the edges with directions.
-          First we annotate the nodes with a direction (clockwise
-          \(\circlearrowright\) or counterclockwise
-          \(\circlearrowleft\)). This makes the surfing edges have the
-          form \(P,p \longrightarrow Q,\hat{q}\) and \(Q,q
-          \longrightarrow P,\hat{p}\), where \(p\) and \(q\) are
-          directions, and \(\hat{x}\) means the opposite direction of
-          \(x\).
+          advantage of this by annotating the edges and nodes with directions.
         </p>
+
+        <ol>
+          <li>
+            The nodes \(P\) become nodes with a direction, either
+            clockwise \(P\circlearrowright\) or counterclockwise
+            \(P\circlearrowleft\).
+          </li>
+          <li>
+            The undirected surfing edges \(P \longleftrightarrow Q\)
+            become directed edges \(P,p \longrightarrow
+            Q,\hat{q}\) and \(Q,q \longrightarrow P,\hat{p}\), where
+            \(p\) and \(q\) are directions, and \(\hat{x}\) means the
+            opposite direction of \(x\).
+          </li>
+          <li>
+            The undirected hugging edges \(P \longleftrightarrow Q\)
+            become directed edges \(P\circlearrowright \longrightarrow
+            Q\circlearrowright\) and \(P\circlearrowleft
+            \longrightarrow Q\circlearrowleft\). This is where the
+            filtering happens: we <em>don't</em> include
+            \(P\circlearrowright \longrightarrow Q\circlearrowleft\) and
+            \(P\circlearrowleft \longrightarrow Q\circlearrowright\),
+            because changing direction introduces cusps\(\curlywedge\).
+          </li>
+        </ol>
 
         <p>
           In our diagram, node \(A\) would become two nodes,
           \(A\circlearrowright\) and \(A\circlearrowleft\), and have
-          an incoming edge \(\longrightarrow A\circlearrowright\) and
-          an outgoing edge \(A\circlearrowleft \longrightarrow\).
-        </p>
-        
-        <p>
-          We next split the undirected hugging edges \(P
-          \longleftrightarrow Q\) into directed edges
-          \(P\circlearrowright \longrightarrow Q\circlearrowright\)
-          and \(P\circlearrowleft \longrightarrow Q\circlearrowleft\).
-          This is where the filtering happens: we <em>don't</em> include
-          \(P\circlearrowright \longrightarrow Q\circlearrowleft\) and
-          \(P\circlearrowleft \longrightarrow Q\circlearrowright\).
-          Those edges introduce the cusps\(\curlywedge\) that are never
-          in an optimal path.
-        </p>
-        
-        <p>
-          If the path entered through \(A\circlearrowright\) then it
-          must exit through a \(\circlearrowright\) node, which would
-          be either the \(B\circlearrowright \longrightarrow\) edge or
-          the \(D\circlearrowright \longrightarrow\) edge. It can't
-          leave through \(C\circlearrowleft \longrightarrow\) or
-          \(A\circlearrowleft \longrightarrow\) because they rotate the
-          wrong way.
+          an incoming surfing edge \(\longrightarrow
+          A\circlearrowright\) and an outgoing surfing edge
+          \(A\circlearrowleft \longrightarrow\). If the path entered
+          through \(A\circlearrowright\) then it must exit through a
+          \(\circlearrowright\) node, which would be either the
+          \(B\circlearrowright \longrightarrow\) surfing edge (via the
+          \(A\circlearrowright \longrightarrow B\circlearrowright\)
+          hugging edge) or the \(D\circlearrowright \longrightarrow\)
+          surfing edge (via the \(A\circlearrowright \longrightarrow
+          D\circlearrowright\) hugging edge). It can't leave through
+          \(C\circlearrowleft \longrightarrow\) because it changes
+          rotation direction, and we have filtered out the
+          \(A\circlearrowright \longrightarrow C\circlearrowleft\)
+          hugging edge.
         </p>
 
         [Diagram similar to previous one, with valid/invalid surfing/hugging edges?]
