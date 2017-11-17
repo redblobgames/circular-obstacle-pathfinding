@@ -83,15 +83,29 @@ Vue.component('a-draggable', {
     },
     methods: {
         coords: function(e) {
-            const rect = this.$parent.$el.getBoundingClientRect();
-            return {x: e.clientX - rect.left, y: e.clientY - rect.top};
+            const svg = this.$el.ownerSVGElement;
+            const rect = svg.getBoundingClientRect();
+            let domCoords = {x: e.clientX - rect.left, y: e.clientY - rect.top};
+            let point = svg.createSVGPoint();
+            point.x = domCoords.x;
+            point.y = domCoords.y;
+            let svgCoords = point.matrixTransform(svg.getScreenCTM().inverse());
+            return svgCoords;
         },
         moveTo: function(startCoords, startModel, currentCoords) {
             const newX = startModel.x + (currentCoords.x - startCoords.x);
             const newY = startModel.y + (currentCoords.y - startCoords.y);
-            const rect = this.$parent.$el.getBoundingClientRect();
-            if (0 <= currentCoords.x && currentCoords.x < rect.width
-                && 0 <= currentCoords.y && currentCoords.y < rect.height
+            let svg = this.$el.ownerSVGElement;
+            const rect = svg.getBoundingClientRect();
+
+            // newX, newY are svg coords but the rect is dom coords so convert
+            let point = svg.createSVGPoint();
+            point.x = newX;
+            point.y = newY;
+            let domCoords = point.matrixTransform(svg.getScreenCTM());
+            
+            if (rect.left <= domCoords.x && domCoords.x < rect.right
+                && rect.top <= domCoords.y && domCoords.y < rect.bottom
                 && (this.constraint === undefined || this.constraint(newX, newY))) {
                 this.model.x = newX;
                 this.model.y = newY;
