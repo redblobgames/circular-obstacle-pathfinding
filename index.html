@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
     <title>Circular Obstacle Pathfinding</title>
     <meta name="description" content="Pathfinding around a set of circular obstacles" />
@@ -12,8 +13,8 @@
   </head>
 
   <body>
-    <a id="forkme_banner" href="https://github.com/redblobgames/circular-obstacle-pathfinding">View on GitHub</a>
     <header>
+      <a id="forkme_banner" href="https://github.com/redblobgames/circular-obstacle-pathfinding">View on GitHub</a>
       <div>
         <h1>Circular Obstacle Pathfinding</h1>
         <h3>Pathfinding around a set of circular obstacles</h3>
@@ -34,7 +35,7 @@
           find a path through this world of round obstacles.
         </p>
 
-        <svg id="diagram-intro" width="600" height="300">
+        <svg id="diagram-intro" viewBox="0 0 600 300">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A" :constraint="no_touching_circle(index)">
             <circle :r="Math.max(A.r, 10)" />
@@ -134,7 +135,7 @@
           A path through the graph is a series of nodes connected by edges:
         </p>
 
-        <svg id="diagram-path-edges" width="600" height="170">
+        <svg id="diagram-path-edges" viewBox="0 0 600 180">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A" :constraint="no_touching_circle(index)">
             <circle :r="Math.max(A.r, 10)" />
@@ -159,7 +160,7 @@
           graph: generate all of the possible surfing and hugging edges.
         </p>
 
-        <svg id="diagram-surfing-edges" width="600" height="300">
+        <svg id="diagram-surfing-edges" viewBox="0 0 600 300">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A" :constraint="no_touching_circle(index)">
             <circle :r="Math.max(A.r, 5)" />
@@ -196,7 +197,7 @@
           in the diagram below.
         </p>
 
-        <svg id="diagram-belt-problem" width="600" height="300">
+        <svg id="diagram-belt-problem" viewBox="0 0 600 300">
           <defs>
             <clipPath id="belt-problem-clip">
               <circle :cx="B.x" :cy="B.y" :r="B.r" />
@@ -250,7 +251,7 @@
           similar technique.
         </p>
 
-        <svg id="diagram-pulley-problem" width="600" height="300">
+        <svg id="diagram-pulley-problem" viewBox="0 0 600 300">
           <defs>
             <clipPath id="pulley-problem-clip">
               <circle :cx="B.x" :cy="B.y" :r="B.r" />
@@ -306,120 +307,124 @@
           third circle blocks one or more of the surfing edges?
         </p>
 
-        <div id="diagram-surfing-line-of-sight">
+      </div>
+      
+      <div id="diagram-surfing-line-of-sight">
 
-          <svg width="600" height="200">
-            <defs>
-              <clipPath id="surfing-line-of-sight-clip">
-                <circle :cx="C.x" :cy="C.y" :r="C.r" />
-              </clipPath>
-            </defs>
-            <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
-            <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
-            <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
-            <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
-            <line class="surfing-edge invalid-edge"
-                  :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y"
-                  clip-path="url(#surfing-line-of-sight-clip)" />
-            <a-label :at="A" :opposite="B" label="A" />
-            <a-label :at="B" :opposite="A" label="B" />
-            <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
-            <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
-            <a-label :at="C" :opposite="E" label="C" />
-            <text class="plain" x="300" y="25">
-              <template v-if="intersects">Circle blocks line of sight</template>
-              <template v-else>A and B visible from each other</template>
-            </text>
-          </svg>
+        <svg viewBox="0 0 600 200">
+          <defs>
+            <clipPath id="surfing-line-of-sight-clip">
+              <circle :cx="C.x" :cy="C.y" :r="C.r" />
+            </clipPath>
+          </defs>
+          <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+          <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
+          <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
+          <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
+          <line class="surfing-edge invalid-edge"
+                :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y"
+                clip-path="url(#surfing-line-of-sight-clip)" />
+          <a-label :at="A" :opposite="B" label="A" />
+          <a-label :at="B" :opposite="A" label="B" />
+          <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
+          <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
+          <a-label :at="C" :opposite="E" label="C" />
+          <text class="plain" x="300" y="25">
+            <template v-if="intersects">Circle blocks line of sight</template>
+            <template v-else>A and B visible from each other</template>
+          </text>
+        </svg>
 
-          <p>
-            If a surfing edge is blocked by another circle, we need to throw the
-            edge out.  To detect this case, we use a simple <em>point-line-distance</em>
-            calculation. If the distance from the surfing edge to the obstacle’s
-            center is less than the obstacle’s radius, then the obstacle blocks
-            the surfing edge, and we should throw the edge away.
-          </p>
+        <p>
+          If a surfing edge is blocked by another circle, we need to throw the
+          edge out.  To detect this case, we use a simple <em>point-line-distance</em>
+          calculation. If the distance from the surfing edge to the obstacle’s
+          center is less than the obstacle’s radius, then the obstacle blocks
+          the surfing edge, and we should throw the edge away.
+        </p>
 
-          <p>
-            To calculate the distance from point \(C\) to line segment
-            \(\overline{AB}\), use the 
-            <a href="http://paulbourke.net/geometry/pointlineplane/">following
-              method</a>:
-          </p>
-          
-          <p>
-            First, compute \(u\), the fraction of the distance along
-            segment \(\overline{AB}\) at which a perpendicular ascender
-            hits point \(C\):
-          </p>
+        <p>
+          To calculate the distance from point \(C\) to line segment
+          \(\overline{AB}\), use the 
+          <a href="http://paulbourke.net/geometry/pointlineplane/">following
+            method</a>:
+        </p>
+        
+        <p>
+          First, compute \(u\), the fraction of the distance along
+          segment \(\overline{AB}\) at which a perpendicular ascender
+          hits point \(C\):
+        </p>
 
-          <p>
-            \[ u = {(C - A) \cdot (B-A) \over (B-A)\cdot(B-A)}  \]
-          </p>
+        <p>
+          \[ u = {(C - A) \cdot (B-A) \over (B-A)\cdot(B-A)}  \]
+        </p>
 
-          <p>
-            Then compute the position \(E\) on \(\overline{AB}\):
-          </p>
-          
-          <p>
-            \[ E = A + \mathrm{clamp}(u, 0, 1) * (B - A) \]
-          </p>
-          
-          <svg width="600" height="300">
-            <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
-            <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
-            <line class="surfing-edge invalid-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" clip-path="url(#surfing-line-of-sight-clip)" />
-            <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
-            <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
-            <g :transform="`translate(0,${dashed_line_offset})`">
-              <!-- horizontal ruler showing 'u' -->
-              <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
-              <a-tick :at="A" :opposite="B" />
-              <a-tick :at="B" :opposite="A" />
-              <circle :cx="A.x" :cy="A.y" :r="3" fill="black" />
-              <circle :cx="B.x" :cy="B.y" :r="3" fill="black" />
-              <circle :cx="C.x" :cy="A.y" :r="3" fill="black" />
-              <text :x="A.x" :y="A.y" dx="-10" dy="5">0</text>
-              <text :x="B.x" :y="B.y" dx="10" dy="5">1</text>
-              <text :x="C.x" :y="A.y" :dy="5 + dashed_line_offset/5">u={{Math.round(100*(C.x-A.x)/(B.x-A.x))/100}}</text>
-            </g>
-            <g>
-              <!-- ruler showing 'd' -->
-              <a-tick :at="C" :opposite="E" />
-              <a-tick :at="E" :opposite="C" />
-              <text :x="(C.x+E.x)/2" :y="(C.y+E.y)/2" dx="15" dy="5">d</text>
-            </g>
-            <g>
-              <!-- ruler showing 'r' -->
-              <line class="dashed" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" />
-              <text :x="0.2*C.x+0.8*F.x" :y="0.2*C.y+0.8*F.y" dx="-5" dy="10">r</text>
-            </g>
-            <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
-            <circle :cx="E.x" :cy="E.y" r="3" fill="black" />
-            <a-label :at="A" :opposite="B" label="A" />
-            <a-label :at="B" :opposite="A" label="B" />
-            <a-label :at="C" :opposite="E" label="C" />
-            <a-label :at="E" :opposite="C" label="E" dx="-10" />
-            <line class="dashed" :x1="C.x" :y1="C.y" :x2="E.x" :y2="E.y" />
-            <line class="dashed" :x1="C.x" :y1="C.y" :x2="C.x" :y2="A.y + dashed_line_offset" />
-            <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
-          </svg>
+        <p>
+          Then compute the position \(E\) on \(\overline{AB}\):
+        </p>
+        
+        <p>
+          \[ E = A + \mathrm{clamp}(u, 0, 1) * (B - A) \]
+        </p>
+        
+        <svg viewBox="0 0 600 300">
+          <line class="surfing-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+          <a-draggable :model="C"><circle :r="C.r" /></a-draggable>
+          <line class="surfing-edge invalid-edge" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" clip-path="url(#surfing-line-of-sight-clip)" />
+          <circle class="graph-node" :cx="A.x" :cy="A.y" r="5" />
+          <circle class="graph-node" :cx="B.x" :cy="B.y" r="5" />
+          <g :transform="`translate(0,${dashed_line_offset})`">
+            <!-- horizontal ruler showing 'u' -->
+            <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
+            <a-tick :at="A" :opposite="B" />
+            <a-tick :at="B" :opposite="A" />
+            <circle :cx="A.x" :cy="A.y" :r="3" fill="black" />
+            <circle :cx="B.x" :cy="B.y" :r="3" fill="black" />
+            <circle :cx="C.x" :cy="A.y" :r="3" fill="black" />
+            <text :x="A.x" :y="A.y" dx="-10" dy="5">0</text>
+            <text :x="B.x" :y="B.y" dx="10" dy="5">1</text>
+            <text :x="C.x" :y="A.y" :dy="5 + dashed_line_offset/5">u={{Math.round(100*(C.x-A.x)/(B.x-A.x))/100}}</text>
+          </g>
+          <g>
+            <!-- ruler showing 'd' -->
+            <a-tick :at="C" :opposite="E" />
+            <a-tick :at="E" :opposite="C" />
+            <text :x="(C.x+E.x)/2" :y="(C.y+E.y)/2" dx="15" dy="5">d</text>
+          </g>
+          <g>
+            <!-- ruler showing 'r' -->
+            <line class="dashed" :x1="C.x" :y1="C.y" :x2="F.x" :y2="F.y" />
+            <text :x="0.2*C.x+0.8*F.x" :y="0.2*C.y+0.8*F.y" dx="-5" dy="10">r</text>
+          </g>
+          <circle :cx="C.x" :cy="C.y" r="3" fill="black" />
+          <circle :cx="E.x" :cy="E.y" r="3" fill="black" />
+          <a-label :at="A" :opposite="B" label="A" />
+          <a-label :at="B" :opposite="A" label="B" />
+          <a-label :at="C" :opposite="E" label="C" />
+          <a-label :at="E" :opposite="C" label="E" dx="-10" />
+          <line class="dashed" :x1="C.x" :y1="C.y" :x2="E.x" :y2="E.y" />
+          <line class="dashed" :x1="C.x" :y1="C.y" :x2="C.x" :y2="A.y + dashed_line_offset" />
+          <circle :cx="C.x" :cy="C.y" :r="C.r" fill="none" stroke="black" />
+        </svg>
 
-          <p>
-            The distance \(d\) from \(C\) to segment \(\overline{AB}\)
-            is the distance from \(C\) to \(E\):
+        <p>
+          The distance \(d\) from \(C\) to segment \(\overline{AB}\)
+          is the distance from \(C\) to \(E\):
 
-            \[d = \|E - C\|\]
+          \[d = \|E - C\|\]
 
-            Since <span v-if="d < r">\(d < r\), the circle blocks the line of sight
-            from \(A\) to \(B\), and the edge should be thrown out.</span>
-            <span v-else>\(d \ge r\), there is line of sight from \(A\) to
-              \(B\), and the edge should be kept.</span> Try moving
-            the circle to see the case where <span v-if="d < r">\(d \ge r\)</span>
-            <span v-else>\(d < r\)</span>.
-          </p>
+          Since <span v-if="d < r">\(d < r\), the circle blocks the line of sight
+          from \(A\) to \(B\), and the edge should be thrown out.</span>
+          <span v-else>\(d \ge r\), there is line of sight from \(A\) to
+            \(B\), and the edge should be kept.</span> Try moving
+          the circle to see the case where <span v-if="d < r">\(d \ge r\)</span>
+          <span v-else>\(d < r\)</span>.
+        </p>
 
-        </div>
+      </div>
+
+        <div>
         
         <h3 id="nodes">Generating Nodes</h3>
 
@@ -431,7 +436,7 @@
           hugging edges generated by that surfing edge.
         </p>
 
-        [Need to work on the flow]
+        <aside>[Need to work on the flow]</aside>
         
         <h3 id="generating-hugging-edges">Generating hugging edges</h3>
 
@@ -441,7 +446,7 @@
           surfing edge.
         </p>
 
-        <svg id="diagram-hugging-edge" width="600" height="300">
+        <svg id="diagram-hugging-edge" viewBox="0 0 600 300">
           <a-draggable :model="A"><circle r="10" /></a-draggable>
           <a-draggable :model="E"><circle r="10" /></a-draggable>
           <template v-if="valid">
@@ -481,7 +486,7 @@
           produce a graph and run pathfinding using the A* algorithm.
         </p>
 
-        <svg id="diagram-final" width="600" height="300">
+        <svg id="diagram-final" viewBox="0 0 600 300">
           <a-draggable v-for="(A, index) in circles"
                        :key="index" :model="A" :constraint="no_touching_circle(index)">
             <circle :r="Math.max(A.r, 10)" />
@@ -552,10 +557,10 @@
           inputs, it's important to check for this case first.
         </p>
 
-        [it's not important *because* arccoside is undefined; it's
-        important because the bitangents don't exist]
+        <aside>[it's not important *because* arccoside is undefined; it's
+          important because the bitangents don't exist]</aside>
         
-        <svg id="diagram-bitangents-overlap" width="600" height="300">
+        <svg id="diagram-bitangents-overlap" viewBox="0 0 600 300">
           <defs>
             <clipPath id="overlap-clip">
               <circle :cx="B.x" :cy="B.y" :r="B.r" />
@@ -671,7 +676,7 @@
           points, corresponding to positive and negative \(\theta\).
         </p>
 
-        <svg id="diagram-circle-overlap" width="600" height="300">
+        <svg id="diagram-circle-overlap" viewBox="0 0 600 300">
           <a-draggable :model="A"><circle :r="A.r" /></a-draggable>
           <a-draggable :model="B"><circle :r="B.r" /></a-draggable>
           <line class="dashed" :x1="A.x" :y1="A.y" :x2="B.x" :y2="B.y" />
@@ -799,7 +804,7 @@
           exit:
         </p>
 
-        <svg id="diagram-rotation-1" width="600" height="300">
+        <svg id="diagram-rotation-1" viewBox="0 0 600 300">
           <defs>
             <marker id="arrowhead-start" viewBox="0 0 10 10" refX="-3" refY="5" markerUnits="strokeWidth" markerWidth="5" markerHeight="4" orient="auto">
               <path d="M 10 0 L 0 5 L 10 10 z" />
@@ -809,7 +814,7 @@
             </marker>
           </defs>
           <circle class="hugging-edge" :cx="circle.x" :cy="circle.y" :r="circle.r"
-                  style="fill:hsl(240,10%,90%)" />
+                  style="fill:hsla(240,0%,100%,0.5)" />
           <template v-for="edge in edges">
             <a-draggable :model="edge"><circle r="10" /></a-draggable>
             <line class="surfing-edge"
@@ -882,7 +887,7 @@
           hugging edge.
         </p>
 
-        [Diagram similar to previous one, with valid/invalid surfing/hugging edges?]
+        <aside>[Diagram similar to previous one, with valid/invalid surfing/hugging edges?]</aside>
         
         <p>
           By filtering these cusped hugging edges out of the graph, we
@@ -896,12 +901,12 @@
           surfing edge.
         </p>
 
-        [amit not sure what this means]
+        <aside>[amit not sure what this means]</aside>
         
         <h3 id="polygonal-obstacles">Polygonal obstacles</h3>
 
         <p>
-          exercise for the reader
+          See <a href="https://dl.acm.org/citation.cfm?id=516343">Game Programming Gems 2</a>, Chapter 3.10, Optimizing Points-of-Visibility Pathfinding by Thomas Young. It covers the node culling but for polygons instead of circles.
         </p>
 
         <h3 id="spatial-index">Spatial index</h3>
@@ -921,6 +926,11 @@
     </section>
 
     <footer>
+      <div>
+        <p class="copyright">Copyright 2017 by <a href="https://github.com/redblobgames">redblobgames</a> and <a href="https://github.com/shillingsburg">shillingsburg</a>. Implemented with <a href="https://khan.github.io/KaTeX/">KaTeX</a> and <a href="https://vuejs.org/">Vue.js</a>.
+        </p>
+      </div>
+      
       <svg class="plain" width="0" height="0">
         <defs>
           <filter id="drop-shadow" x="-100%" y="-100%" width="300%" height="300%">
@@ -945,10 +955,6 @@
       <script src="belt-problem.js"></script>
       <script src="graph-diagrams.js"></script>
       
-      <div>
-        <p class="copyright">Copyright 2017 by <a href="https://github.com/redblobgames">redblobgames</a> and <a href="https://github.com/shillingsburg">shillingsburg</a>. Implemented with <a href="https://khan.github.io/KaTeX/">KaTeX</a> and <a href="https://vuejs.org/">Vue.js</a>.
-        </p>
-      </div>
     </footer>
 
   </body>

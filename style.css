@@ -1,7 +1,12 @@
+/* DEBUG -- add debug class to body */
+
+body.debug svg:not(.plain) { outline: 2px dashed orange; }
+body.debug p { outline: 2px dashed blue; }
+body.debug section { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20px' height='30px'><rect fill='#0099cc' fill-opacity='0.1' x='0' y='0' width='100%' height='10%'/></svg>"); }
+
 /* Diagrams */
 
 svg { pointer-events: none; -ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none; }
-svg.plain { overflow: visible; }
 text { text-anchor: middle; }
 line { fill: none; stroke: black; }
 .dashed { stroke-dasharray: 4,3; }
@@ -14,8 +19,9 @@ svg.plain .surfing-edge, svg.plain .hugging-edge { stroke-width: 4px; }
 .draggable { pointer-events: visible; cursor: move; }
 .draggable:hover { filter:url(#drop-shadow); }
 .draggable:hover.dragging { filter:none; }
-.draggable circle { fill: hsl(240,10%,90%); }
-.dragging circle { fill: hsl(240,10%,88%); }
+.draggable circle:hover { fill: hsla(240,0%,100%,1.0); }
+.draggable circle { fill: hsla(240,0%,100%,0.5); }
+.dragging circle { fill: hsla(240,00%,100%,0.5); }
 
 #diagram-rotation-1 .surfing-edge { stroke-width: 4px; }
 #diagram-rotation-1 .surfing-edge[marker-start] { stroke: hsl(0,50%,50%); }
@@ -25,25 +31,56 @@ svg.plain .surfing-edge, svg.plain .hugging-edge { stroke-width: 4px; }
 /* Fonts */
 
 body, text.plain {
-    font-family: "Source Sans Pro", "Open Sans", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "Tahoma", sans-serif;
-    font-size: 17px;
+    font-family: Georgia, serif;
+    -ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;text-size-adjust: 100%;
+    -ms-hyphens:auto;-webkit-hyphens:auto;hyphens:auto;
 }
 text {
     font-family: "KaTeX_Math", "Times New Roman", serif;
-    font-size: 18px;
+    font-size: 1.12em;
 }
-tt, code, kbd, samp, pre {
-    font-family: "Source Code Pro", monospace, serif, "Segoe UI Symbol", "Symbol";
-    font-size: 13px;
+header, footer, h1, h2, h3, h4, h5, h6 {
+    font-family: system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -1px;
 }
-h1, h2, h3, h4, h5, h6 { font-weight: 700; letter-spacing: -1px; }
-h1 { font-size: 43px; }
-h2 { font-size: 32px; }
-h3 { font-size: 24px; }
-h4, h5, h6 { font-size: 18px; }
+
+h1 { font-size: 2.0em; }
+h2 { font-size: 1.5em; }
+h3 { font-size: 1.2em; }
+h4, h5, h6 { font-size: 1em; }
+#forkme_banner { font-size: 0.5em; }
 
 section .katex { font-size: 1.1em; }
 
+
+/* Responsive sizes */
+:root {
+    --font-size: calc(10px + 1vw);
+    --body-width: calc(100vw - 36px);
+}
+@media only screen and (min-width: 550px) {
+    :root {
+        --body-width: calc(33 * var(--font-size));
+    }
+}
+@media only screen and (min-width: 1000px) {
+    :root {
+        --font-size: 20px;
+        --body-width: 675px;
+    }
+}
+
+body, text.plain {
+    font-size: 16px;
+    font-size: var(--font-size);
+}
+
+header, footer, section > div > * {
+    width: 600px;
+    max-width: 675px;
+    width: var(--body-width);
+}
 
 /* Layout */
 
@@ -58,26 +95,47 @@ html {
 body {
     margin: 0;
     padding: 0;
-    line-height: 1.5;
+    line-height: 1.5em;
 }
 
-h1, h2, h3, h4, h5, h6, p, ul, ol, dl, pre { margin: 10px 0 15px 0; }
+h1, h2, h3, h4, h5, h6 { clear: both; }
+h1, h2, h3, h4, h5, h6, p, ul, ol, dl, pre, section {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    margin-top: calc(1.5 * var(--font-size));
+    margin-bottom: calc(1.5 * var(--font-size));
+}
 p, ul, ol, dl { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
 
-pre {
-    width: 100%;
-    padding: 10px;
-    overflow: auto;
+header h3 { margin-top: 0; }
+
+header, footer, section > div > * {
+    margin-left: auto;
+    margin-right: auto;
 }
-code {
-    padding: 3px;
-    margin: 0 3px;
+svg, section > div > svg {
+    overflow: visible;
+    width: auto;
+    max-width: 600px;
 }
-header div, section div, footer div {
-    max-width: 600px; margin: 0 auto;
+svg:not(.plain) {
+    display: block;
+    clear: both;
 }
-header, section, footer {
-    margin: 20px 0; 
+
+section > div aside {
+    font-size: 75%;
+    border-top: 2px solid #999;
+    border-bottom: 2px solid #999;
+}
+@media only screen and (min-width: 1000px) {
+    section > div aside {
+        line-height: 1.2;
+        float: left;
+        width: 150px;
+        margin-top: -3em;
+        margin-left: calc((100vw - var(--body-width)) / 2 - 150px - 13px);
+    }
 }
 
 
@@ -92,14 +150,6 @@ section a { color: hsl(240,50%,50%); text-decoration: none; }
 a:hover, a:focus { text-decoration: underline; }
 
 section { border-top: 1px solid white; border-bottom: 1px solid white; box-shadow: inset 0 0 10px hsla(0,0%,20%,0.2); }
-
-pre, svg:not(.plain) {
-    background-color: hsl(0,0%,100%);
-    border: 1px solid hsl(0,0%,80%);
-    border-radius: 10px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-}
-
 
 /* "Fork Me on github" style from github */
 #forkme_banner {
