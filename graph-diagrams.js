@@ -259,7 +259,6 @@ let diagram_final = make_path_diagram(
     ]
 );
 
-
 let rotation1 = new Vue({
     el: "#diagram-rotation-1",
     data: {

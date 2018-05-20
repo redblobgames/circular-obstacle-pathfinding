@@ -110,7 +110,7 @@ let hugging_edge = new Vue({
     data: {
         A: {x: 150, y: 200},
         C: {x: 300, y: 100, r: 40},
-        E: {x: 450, y: 200}
+        E: {x: 450, y: 200},
     },
     computed: {
         valid: function() { return !isNaN(this.angle_to_A) && !isNaN(this.angle_to_E); },
@@ -128,8 +128,8 @@ let hugging_edge = new Vue({
             while (angle < 0) { angle += 2 * Math.PI; }
             let large_arc = angle >= Math.PI ? 1 : 0;
             return `M ${this.B.x},${this.B.y} A ${this.C.r},${this.C.r} 0 ${large_arc} 1 ${this.D.x},${this.D.y}`;
-        }
-    }
+        },
+    },
 });
 
 
@@ -156,8 +156,8 @@ let surfing_line_of_sight = new Vue({
 });
 
 
-let circle_overlap = new Vue({
-    el: "#diagram-circle-overlap",
+["#diagram-circle-overlap", "#diagram-hugging-overlap"].forEach(el => new Vue({
+    el: el,
     data: {
         A: {x: 220, y: 120, r: 100},
         B: {x: 350, y: 180, r: 80}
@@ -171,6 +171,8 @@ let circle_overlap = new Vue({
         C: function() { return vec_interpolate(this.A, this.B, this.a / this.AB_distance); },
         D: function() { return direction_step(this.A, this.A.r, this.AB_angle + this.theta); },
         E: function() { return direction_step(this.A, this.A.r, this.AB_angle - this.theta); },
+        AD_angle: function() { return vec_facing(this.A, this.D); },
+        AE_angle: function() { return vec_facing(this.A, this.E); },
         theta_AC: function() { return direction_step(this.A, 20, this.AB_angle - this.theta/2); },
         theta_AD: function() { return direction_step(this.A, 20, this.AB_angle + this.theta/2); },
         a: function() {
@@ -185,14 +187,14 @@ let circle_overlap = new Vue({
             return direction_step(this.C, 1, vec_facing(this.A, this.B) + Math.PI/4);
         }
     }
-});
+}));
 
 
 let bitangents_overlap = new Vue({
     el: "#diagram-bitangents-overlap",
     data: {
         A: {x: 150, y: 150, r: 130},
-        B: {x: 450, y: 150, r: 50}
+        B: {x: 450, y: 150, r: 50},
     },
     computed: {
         overlapping: function() { return vec_distance(this.A, this.B) < this.A.r + this.B.r; },

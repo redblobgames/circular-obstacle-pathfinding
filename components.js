@@ -44,7 +44,7 @@ Vue.component('a-tick', {
 
 /** Draggable svg object
  *
- * Use: <a-draggable :model="...">...svg...</draggable>
+ * Use: <a-draggable :model="...">...svg...</a-draggable>
  *
  * Creates a <g class="draggable"> that's positioned at the x,y
  * coordinates in the model object. The contained svg object should be
